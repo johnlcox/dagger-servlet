@@ -1,0 +1,14 @@
+<!-- https://java.net/jira/browse/JERSEY-1889 -->
+<web-app>
+    <listener>
+        <listener-class>com.leacox.guice.example.simple.SimpleContextListener</listener-class>
+    </listener>
+    <filter>
+        <filter-name>Guice Filter</filter-name>
+        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Guice Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
