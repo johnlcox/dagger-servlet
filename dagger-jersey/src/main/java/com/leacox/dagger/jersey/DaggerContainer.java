@@ -19,14 +19,16 @@ import java.util.Map;
 @Singleton
 public class DaggerContainer extends ServletContainer {
     private final ObjectGraph objectGraph;
-    private final JerseyModule jerseyModule;
+    private final JerseyModule module;
+    private final JerseyRequestModule requestModule;
 
     private WebApplication webApplication;
 
     @Inject
-    public DaggerContainer(ObjectGraph objectGraph, JerseyModule jerseyModule) {
+    public DaggerContainer(ObjectGraph objectGraph, JerseyModule module, JerseyRequestModule requestModule) {
         this.objectGraph = objectGraph;
-        this.jerseyModule = jerseyModule;
+        this.module = module;
+        this.requestModule = requestModule;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class DaggerContainer extends ServletContainer {
     @Override
     protected void initiate(ResourceConfig config, WebApplication webApplication) {
         this.webApplication = webApplication;
-        webApplication.initiate(config, new DaggerComponentProviderFactory(config, objectGraph, jerseyModule));
+        webApplication.initiate(config, new DaggerComponentProviderFactory(config, objectGraph, module));
     }
 
     public WebApplication getWebApplication() {

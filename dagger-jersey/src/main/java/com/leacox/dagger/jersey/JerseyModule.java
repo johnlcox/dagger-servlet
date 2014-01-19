@@ -1,16 +1,27 @@
 package com.leacox.dagger.jersey;
 
+import com.sun.jersey.api.core.*;
 import com.sun.jersey.core.util.FeaturesAndProperties;
+import com.sun.jersey.spi.MessageBodyWorkers;
+import com.sun.jersey.spi.container.ExceptionMapperContext;
 import com.sun.jersey.spi.container.WebApplication;
 import dagger.Module;
 import dagger.Provides;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 /**
  * @author John Leacox
  */
-@Module
+@Module(
+        injects = {},
+        addsTo = JerseyModule.class,
+        library = true
+)
 public abstract class JerseyModule {
     @Provides
     public WebApplication webApplication(DaggerContainer daggerContainer) {
@@ -25,5 +36,20 @@ public abstract class JerseyModule {
     @Provides
     public FeaturesAndProperties provideFeaturesAndProperties(WebApplication webApplication) {
         return webApplication.getFeaturesAndProperties();
+    }
+
+    @Provides
+    public MessageBodyWorkers provideMessageBodyWorkers(WebApplication webApplication) {
+        return webApplication.getMessageBodyWorkers();
+    }
+
+    @Provides
+    public ExceptionMapperContext provideExceptionMapperContext(WebApplication webApplication) {
+        return webApplication.getExceptionMapperContext();
+    }
+
+    @Provides
+    public ResourceContext provideResourceContext(WebApplication webApplication) {
+        return webApplication.getResourceContext();
     }
 }

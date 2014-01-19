@@ -13,3 +13,6 @@ import java.lang.annotation.Target;
 @ScopeAnnotation
 public @interface RequestScoped {
 }
+
+// TODO: Figure out how to actually implement scope.
+// This might be helpful: https://github.com/square/dagger/pull/72/files
