@@ -12,8 +12,10 @@ import javax.servlet.http.HttpSession;
  */
 @Module(
         injects = {
-        },
-        library = true
+                ServletRequest.class,
+                ServletResponse.class,
+                HttpSession.class
+        }
 )
 class InternalServletRequestModule {
     @Provides

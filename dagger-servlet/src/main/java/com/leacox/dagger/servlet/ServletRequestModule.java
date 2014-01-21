@@ -8,11 +8,10 @@ import dagger.Module;
 @Module(
         injects = {
         },
-        addsTo = ServletRequestModule.class,
+        addsTo = ServletModule.class,
         includes = {
                 InternalServletRequestModule.class
-        },
-        library = true
+        }
 )
 public class ServletRequestModule {
 }

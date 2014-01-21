@@ -18,12 +18,11 @@ import javax.servlet.ServletContext;
                 InternalServletModule.ObjectGraphProvider.class,
                 FilterPipeline.class,
                 DaggerFilterPipeline.class,
-                ServletPipeline.class,
+                //ServletPipeline.class,
                 DaggerServletPipeline.class,
                 DaggerFilter.class
-        },
-        includes = InternalServletModule.class,
-        library = true
+        }
+        //library = true
 )
 class InternalServletModule {
     @Provides
@@ -31,14 +30,14 @@ class InternalServletModule {
         return filterPipeline;
     }
 
-    @Provides
-    ServletPipeline provideServletPipeline(DaggerServletPipeline servletPipeline) {
-        return servletPipeline;
-    }
+//    @Provides
+//    ServletPipeline provideServletPipeline(DaggerServletPipeline servletPipeline) {
+//        return servletPipeline;
+//    }
 
     @Provides
-    DaggerFilter provideDaggerFilter(DaggerFilter daggerFilter) {
-        return daggerFilter;
+    DaggerFilter provideDaggerFilter(FilterPipeline filterPipeline) {
+        return new DaggerFilter(filterPipeline);
     }
 
     @Provides
