@@ -14,5 +14,5 @@ import dagger.Module;
         },
         library = true
 )
-public abstract class ServletRequestModule {
+public class ServletRequestModule {
 }

@@ -27,4 +27,8 @@ public abstract class DaggerServletContextListener implements ServletContextList
     }
 
     protected abstract ObjectGraph getObjectGraph();
+
+    protected abstract Class<?>[] getRequestScopedModules();
+
+    protected abstract Class<?>[] getSessionScopedModules();
 }

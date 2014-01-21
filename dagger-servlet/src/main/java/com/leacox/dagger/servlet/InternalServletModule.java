@@ -26,11 +26,6 @@ import javax.servlet.ServletContext;
         library = true
 )
 class InternalServletModule {
-//    @Provides
-//    Provider<ServletContext> providerServletContextProvider(ServletContextProvider provider) {
-//        return provider;
-//    }
-
     @Provides
     FilterPipeline providFilterPipeline(DaggerFilterPipeline filterPipeline) {
         return filterPipeline;
