@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import javax.servlet.*;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
@@ -7,7 +7,6 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.sun.jersey.spi.container.servlet.WebConfig;
 import dagger.ObjectGraph;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletException;

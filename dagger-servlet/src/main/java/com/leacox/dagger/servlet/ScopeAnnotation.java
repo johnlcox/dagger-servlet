@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

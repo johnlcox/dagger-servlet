@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.core.spi.component.ComponentContext;

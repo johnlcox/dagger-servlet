@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import dagger.ObjectGraph;
 
@@ -16,6 +16,8 @@ public abstract class DaggerServletContextListener implements ServletContextList
         ServletContext servletContext = servletContextEvent.getServletContext();
 
         ObjectGraph objectGraph = getObjectGraph();
+        objectGraph.get(InternalServletModule.ServletContextProvider.class).set(servletContext);
+        objectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(objectGraph);
         servletContext.setAttribute(OBJECT_GRAPH_NAME, objectGraph);
     }
 

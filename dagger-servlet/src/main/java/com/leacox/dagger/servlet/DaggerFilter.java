@@ -1,9 +1,11 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
+import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 
 /**
@@ -12,15 +14,13 @@ import java.util.concurrent.Callable;
 public class DaggerFilter implements Filter {
     private static ThreadLocal<DaggerContext> localContext = new ThreadLocal<DaggerContext>();
 
+    private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
+
     private FilterPipeline filterPipeline;
 
+    @Inject
     DaggerFilter(FilterPipeline filterPipeline) {
         this.filterPipeline = filterPipeline;
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
     }
 
     @Override
@@ -47,12 +47,51 @@ public class DaggerFilter implements Filter {
         }
     }
 
-    @Override
-    public void destroy() {
-
+    static HttpServletRequest getRequest() {
+        return getDaggerContext().getRequest();
     }
 
-    // TODO: What is the purpose of originalRequest and owner?
+    static HttpServletResponse getResponse() {
+        return getDaggerContext().getResponse();
+    }
+
+//    static ServletContext getServletContext() {
+//        return servletContext.get();
+//    }
+
+    private static DaggerContext getDaggerContext() {
+        return localContext.get();
+    }
+
+    private FilterPipeline getFilterPipeline() {
+        return filterPipeline;
+    }
+
+    private static void reset() {
+        localContext.remove();
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        ServletContext servletContext = filterConfig.getServletContext();
+
+        DaggerFilter.servletContext = new WeakReference<ServletContext>(servletContext);
+
+        FilterPipeline filterPipeline = getFilterPipeline();
+        filterPipeline.initPipeline(servletContext);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            FilterPipeline filterPipeline = getFilterPipeline();
+            filterPipeline.destroyPipeline();
+        } finally {
+            reset();
+            servletContext.clear();
+        }
+    }
+
     private static class DaggerContext {
         private final HttpServletRequest originalRequest;
         private final HttpServletRequest request;

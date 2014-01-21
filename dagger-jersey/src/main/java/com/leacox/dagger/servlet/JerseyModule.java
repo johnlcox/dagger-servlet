@@ -1,4 +1,4 @@
-package com.leacox.dagger.jersey;
+package com.leacox.dagger.servlet;
 
 import com.sun.jersey.api.core.*;
 import com.sun.jersey.core.util.FeaturesAndProperties;
@@ -8,10 +8,6 @@ import com.sun.jersey.spi.container.WebApplication;
 import dagger.Module;
 import dagger.Provides;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 /**
