@@ -1,6 +1,7 @@
 package com.leacox.dagger.servlet;
 
 import dagger.ObjectGraph;
+import dagger.ScopingObjectGraph;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -15,10 +16,13 @@ public abstract class DaggerServletContextListener implements ServletContextList
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext servletContext = servletContextEvent.getServletContext();
 
-        ObjectGraph objectGraph = getObjectGraph();
-        objectGraph.get(InternalServletModule.ServletContextProvider.class).set(servletContext);
-        objectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(objectGraph);
-        servletContext.setAttribute(OBJECT_GRAPH_NAME, objectGraph);
+        ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(getObjectGraph())
+                .addScopedModules(RequestScoped.class, (Object[]) getRequestScopedModules())
+                .addScopedModules(SessionScoped.class, (Object[]) getSessionScopedModules());
+
+        scopingObjectGraph.get(InternalServletModule.ServletContextProvider.class).set(servletContext);
+        scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);
+        servletContext.setAttribute(OBJECT_GRAPH_NAME, scopingObjectGraph);
     }
 
     public void contextDestroyed(ServletContextEvent servletContextEvent) {

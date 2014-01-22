@@ -1,21 +1,23 @@
 package com.leacox.dagger.servlet;
 
+import com.leacox.dagger.servlet.DaggerFilter;
 import dagger.Module;
 import dagger.ObjectGraph;
+import dagger.Provides;
+import dagger.ScopingObjectGraph;
 import org.junit.Test;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -80,5 +82,99 @@ public class RandomTests {
         filter.doFilter(request, response, filterChain);
 
         assertTrue(invoked[0]);
+    }
+
+    @Test
+    public void testRequestScopedInjectionSame() throws IOException, ServletException {
+        final ScopingObjectGraph objectGraph = ScopingObjectGraph.create(ObjectGraph.create(new ServletModule()))
+                .addScopedModules(RequestScoped.class, new ServletRequestModule(), new RequestScopedModule());
+        objectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(objectGraph);
+
+        final ServletRequest request = ServletTestUtils.newFakeHttpServletRequest();
+        final ServletResponse response = ServletTestUtils.newFakeHttpServletResponse();
+
+        final boolean[] invoked = new boolean[1];
+
+        DaggerFilter filter = objectGraph.get(DaggerFilter.class);
+
+        FilterChain filterChain = new FilterChain() {
+            public void doFilter(ServletRequest servletRequest,
+                                 ServletResponse servletResponse) {
+                invoked[0] = true;
+
+                RequestFoo fooOne = objectGraph.get(RequestFoo.class);
+                RequestFoo fooTwo = objectGraph.get(RequestFoo.class);
+
+                assertSame(fooOne, fooTwo);
+            }
+        };
+        filter.doFilter(request, response, filterChain);
+
+        assertTrue(invoked[0]);
+    }
+
+    @Test
+    public void testRequestScopedInjectionSeparateRequests() throws IOException, ServletException {
+        final ScopingObjectGraph objectGraph = ScopingObjectGraph.create(ObjectGraph.create(new ServletModule()))
+                .addScopedModules(RequestScoped.class, new ServletRequestModule(), new RequestScopedModule());
+        objectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(objectGraph);
+
+        final RequestFoo[] foos = new RequestFoo[2];
+
+        DaggerFilter filter = objectGraph.get(DaggerFilter.class);
+
+        final ServletRequest requestOne = ServletTestUtils.newFakeHttpServletRequest();
+        final ServletResponse responseOne = ServletTestUtils.newFakeHttpServletResponse();
+        FilterChain filterChainOne = new FilterChain() {
+            public void doFilter(ServletRequest servletRequest,
+                                 ServletResponse servletResponse) {
+                foos[0] = objectGraph.get(RequestFoo.class);
+            }
+        };
+        filter.doFilter(requestOne, responseOne, filterChainOne);
+
+        final ServletRequest requestTwo = ServletTestUtils.newFakeHttpServletRequest();
+        final ServletResponse responseTwo = ServletTestUtils.newFakeHttpServletResponse();
+        FilterChain filterChainTwo = new FilterChain() {
+            public void doFilter(ServletRequest servletRequest,
+                                 ServletResponse servletResponse) {
+                foos[1] = objectGraph.get(RequestFoo.class);
+            }
+        };
+        filter.doFilter(requestTwo, responseTwo, filterChainTwo);
+
+        assertNotSame(foos[0], foos[1]);
+    }
+
+    @Singleton
+    static class RequestFoo {
+        private final String foo;
+
+        @Inject
+        RequestFoo(String foo) {
+            this.foo = foo;
+        }
+
+        public String getFoo() {
+            return foo;
+        }
+    }
+
+    @Module(
+            injects = {
+                    RequestFoo.class
+            }
+//            },
+//            addsTo = ServletModule.class,
+//            includes = {
+//                    InternalServletRequestModule.class
+//            }
+    )
+    static class RequestScopedModule {
+        @Provides
+        public String provideFoo() {
+            return "foo";
+        }
+
     }
 }

@@ -1,5 +1,7 @@
 package com.leacox.dagger.servlet;
 
+import com.leacox.dagger.servlet.FilterPipeline;
+
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -47,12 +49,25 @@ public class DaggerFilter implements Filter {
         }
     }
 
-    static HttpServletRequest getRequest() {
-        return getDaggerContext().getRequest();
+    // TODO: When ScopingObjectGraph doesn't need to be in the dagger package anymore these methods can become package private
+    public static HttpServletRequest getRequest() {
+        DaggerContext context = getDaggerContext();
+
+        if (context == null) {
+            return null;
+        }
+
+        return context.getRequest();
     }
 
-    static HttpServletResponse getResponse() {
-        return getDaggerContext().getResponse();
+    public static HttpServletResponse getResponse() {
+        DaggerContext context = getDaggerContext();
+
+        if (context == null) {
+            return null;
+        }
+
+        return context.getResponse();
     }
 
 //    static ServletContext getServletContext() {

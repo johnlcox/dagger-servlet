@@ -1,5 +1,6 @@
 package com.leacox.dagger.servlet;
 
+import com.leacox.dagger.servlet.DaggerFilter;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
