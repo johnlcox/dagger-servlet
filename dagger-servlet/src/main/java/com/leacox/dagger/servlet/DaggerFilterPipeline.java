@@ -15,14 +15,14 @@ import java.io.IOException;
 public class DaggerFilterPipeline implements FilterPipeline {
     private final ObjectGraph objectGraph;
     private final ServletContext servletContext;
-    //private final Provider<ServletContext> servletContextProvider;
+    private final ServletPipeline servletPipeline;
 
 
     @Inject
-    public DaggerFilterPipeline(ObjectGraph objectGraph, ServletContext servletContext) { //Provider<ServletContext> servletContextProvider) {
+    public DaggerFilterPipeline(ObjectGraph objectGraph, ServletPipeline servletPipeline, ServletContext servletContext) {
         this.objectGraph = objectGraph;
+        this.servletPipeline = servletPipeline;
         this.servletContext = servletContext;
-        //this.servletContextProvider = servletContextProvider;
     }
 
     @Override
@@ -31,13 +31,13 @@ public class DaggerFilterPipeline implements FilterPipeline {
     }
 
     @Override
-    public void destroyPipeline() {
-
-    }
-
-    @Override
     public void dispatch(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         // TODO: Investigate if this is enough? Probably not.
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroyPipeline() {
+
     }
 }

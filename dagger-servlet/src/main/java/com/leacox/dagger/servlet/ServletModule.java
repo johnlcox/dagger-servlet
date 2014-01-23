@@ -11,8 +11,6 @@ import dagger.Module;
         includes = {
                 InternalServletModule.class
         }
-        //library = true
 )
 public class ServletModule {
-    // TODO: Filter and Servlet bindings?
 }

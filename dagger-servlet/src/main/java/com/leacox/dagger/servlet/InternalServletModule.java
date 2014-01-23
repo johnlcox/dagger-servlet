@@ -19,11 +19,9 @@ import javax.servlet.ServletContext;
                 InternalServletModule.ObjectGraphProvider.class,
                 FilterPipeline.class,
                 DaggerFilterPipeline.class,
-                //ServletPipeline.class,
                 DaggerServletPipeline.class,
                 DaggerFilter.class
         }
-        //library = true
 )
 class InternalServletModule {
     @Provides
