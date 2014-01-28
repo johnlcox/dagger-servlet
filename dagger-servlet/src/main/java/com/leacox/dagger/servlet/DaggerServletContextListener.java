@@ -71,6 +71,29 @@ public abstract class DaggerServletContextListener implements ServletContextList
         void through(Filter filter, Map<String, String> initParams);
     }
 
+    private static class FilterDefinitionBuilderImpl implements FilterDefinitionBuilder {
+
+        @Override
+        public void through(Class<? extends Filter> filterClass) {
+
+        }
+
+        @Override
+        public void through(Filter filter) {
+
+        }
+
+        @Override
+        public void through(Class<? extends Filter> filterClass, Map<String, String> initParams) {
+
+        }
+
+        @Override
+        public void through(Filter filter, Map<String, String> initParams) {
+
+        }
+    }
+
     public static interface ServletDefinitionBuilder {
         void with(Class<? extends HttpServlet> servletClass);
 
