@@ -18,12 +18,16 @@ public class DaggerFilter implements Filter {
 
     private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
 
-    private FilterPipeline filterPipeline;
-
     @Inject
-    DaggerFilter(FilterPipeline filterPipeline) {
-        this.filterPipeline = filterPipeline;
+    FilterPipeline filterPipeline;
+
+    public DaggerFilter() {
+        String stuff = "hi";
     }
+//    @Inject
+//    DaggerFilter(FilterPipeline filterPipeline) {
+//        this.filterPipeline = filterPipeline;
+//    }
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)

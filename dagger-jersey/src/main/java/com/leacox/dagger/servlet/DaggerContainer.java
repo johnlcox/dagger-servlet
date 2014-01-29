@@ -19,8 +19,6 @@ import java.util.Map;
 public class DaggerContainer extends ServletContainer {
     private final ObjectGraph objectGraph;
     private final Class<?>[] modules;
-    //private final JerseyModule module;
-    //private final JerseyRequestModule requestModule;
 
     private WebApplication webApplication;
 

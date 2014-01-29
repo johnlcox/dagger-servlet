@@ -6,6 +6,7 @@ import com.sun.jersey.spi.MessageBodyWorkers;
 import com.sun.jersey.spi.container.ExceptionMapperContext;
 import com.sun.jersey.spi.container.WebApplication;
 import dagger.Module;
+import dagger.ObjectGraph;
 import dagger.Provides;
 
 import javax.ws.rs.ext.Providers;
@@ -14,11 +15,20 @@ import javax.ws.rs.ext.Providers;
  * @author John Leacox
  */
 @Module(
-        injects = {},
-        addsTo = JerseyModule.class,
+        injects = {
+                DaggerContainer.class
+        },
+        includes = {
+                ServletModule.class
+        },
         library = true
 )
-public abstract class JerseyModule {
+public class JerseyModule {
+    @Provides
+    public DaggerContainer provideDaggerContainer(ObjectGraph objectGraph, Class<?>[] modules) {
+        return new DaggerContainer(objectGraph, modules);
+    }
+
     @Provides
     public WebApplication webApplication(DaggerContainer daggerContainer) {
         return daggerContainer.getWebApplication();

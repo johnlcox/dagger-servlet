@@ -1,5 +1,7 @@
 package com.leacox.dagger.servlet;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ObjectArrays;
 import dagger.ObjectGraph;
 import dagger.ScopingObjectGraph;
 
@@ -8,23 +10,32 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author John Leacox
  */
 public abstract class DaggerServletContextListener implements ServletContextListener {
-    private static final String OBJECT_GRAPH_NAME = ObjectGraph.class.getName();
+    public static final String OBJECT_GRAPH_NAME = ObjectGraph.class.getName();
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext servletContext = servletContextEvent.getServletContext();
 
-        ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(getObjectGraph())
+        ObjectGraph objectGraph = ObjectGraph.create((Object[]) getBaseModules());
+
+        ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(objectGraph)
                 .addScopedModules(RequestScoped.class, (Object[]) getRequestScopedModules())
                 .addScopedModules(SessionScoped.class, (Object[]) getSessionScopedModules());
 
         scopingObjectGraph.get(InternalServletModule.ServletContextProvider.class).set(servletContext);
         scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);
+        Iterable<Class<?>> fullModules = Iterables.concat(
+                Arrays.asList(getBaseModules()),
+                Arrays.asList(getRequestScopedModules()),
+                Arrays.asList(getSessionScopedModules()));
+        scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Class.class));
         servletContext.setAttribute(OBJECT_GRAPH_NAME, scopingObjectGraph);
     }
 
@@ -33,7 +44,7 @@ public abstract class DaggerServletContextListener implements ServletContextList
         servletContext.removeAttribute(OBJECT_GRAPH_NAME);
     }
 
-    protected abstract ObjectGraph getObjectGraph();
+    protected abstract Class<?>[] getBaseModules();
 
     protected abstract Class<?>[] getRequestScopedModules();
 

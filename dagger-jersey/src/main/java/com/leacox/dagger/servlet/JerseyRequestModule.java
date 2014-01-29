@@ -22,7 +22,7 @@ import javax.ws.rs.core.UriInfo;
         addsTo = JerseyModule.class,
         library = true
 )
-public abstract class JerseyRequestModule {
+public class JerseyRequestModule {
     //@RequestScoped
     @Singleton
     @Provides

@@ -12,6 +12,7 @@
     <modules>
         <module>dagger-servlet</module>
         <module>dagger-jersey</module>
+        <module>examples</module>
     </modules>
 
     <properties>
@@ -41,6 +42,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>16.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.squareup.dagger</groupId>
                 <artifactId>dagger</artifactId>
                 <version>1.2.0</version>
@@ -68,8 +74,8 @@
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.0.1</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

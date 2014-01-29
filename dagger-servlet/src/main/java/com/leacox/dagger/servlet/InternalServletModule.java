@@ -17,11 +17,13 @@ import javax.servlet.ServletContext;
         injects = {
                 InternalServletModule.ServletContextProvider.class,
                 InternalServletModule.ObjectGraphProvider.class,
+                InternalServletModule.FullModulesProvider.class,
                 FilterPipeline.class,
                 DaggerFilterPipeline.class,
                 DaggerServletPipeline.class,
                 DaggerFilter.class
-        }
+        },
+        library = true
 )
 class InternalServletModule {
     @Provides
@@ -29,14 +31,15 @@ class InternalServletModule {
         return filterPipeline;
     }
 
-//    @Provides
-//    ServletPipeline provideServletPipeline(DaggerServletPipeline servletPipeline) {
-//        return servletPipeline;
-//    }
+    @Provides
+    ServletPipeline provideServletPipeline(DaggerServletPipeline servletPipeline) {
+        return servletPipeline;
+    }
 
     @Provides
     DaggerFilter provideDaggerFilter(FilterPipeline filterPipeline) {
-        return new DaggerFilter(filterPipeline);
+        return new DaggerFilter();
+        //return new DaggerFilter(filterPipeline);
     }
 
     @Provides
@@ -49,6 +52,12 @@ class InternalServletModule {
     @Singleton
     ObjectGraph provideObjectGraph(ObjectGraphProvider objectGraphProvider) {
         return objectGraphProvider.get();
+    }
+
+    @Provides
+    @Singleton
+    Class<?>[] provideFullModules(FullModulesProvider fullModulesProvider) {
+        return fullModulesProvider.get();
     }
 
     @Singleton
@@ -84,6 +93,24 @@ class InternalServletModule {
         @Override
         public ObjectGraph get() {
             return objectGraph;
+        }
+    }
+
+    @Singleton
+    static public class FullModulesProvider implements Provider<Class<?>[]> {
+        private Class<?>[] modules;
+
+        @Inject
+        FullModulesProvider() {
+        }
+
+        void set(Class<?>[] modules) {
+            this.modules = modules;
+        }
+
+        @Override
+        public Class<?>[] get() {
+            return modules;
         }
     }
 }
