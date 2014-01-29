@@ -22,12 +22,16 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     private static final Logger LOGGER = Logger.getLogger(DaggerComponentProviderFactory.class.getName());
 
     private final ObjectGraph objectGraph;
+    private final Class<?>[] modules;
 
-    public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, JerseyModule jerseyModule) {
+    public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Class<?>[] modules) {
         this.objectGraph = objectGraph;
+        this.modules = modules;
 
-        Module annotation = jerseyModule.getClass().getAnnotation(Module.class);
-        register(config, annotation);
+        for (Class<?> module : modules) {
+            Module annotation = module.getClass().getAnnotation(Module.class);
+            register(config, annotation);
+        }
     }
 
     @Override
