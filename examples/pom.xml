@@ -16,6 +16,7 @@
 
     <modules>
         <module>jersey-simple</module>
+        <module>jersey-simple-guice</module>
     </modules>
 
     <build>
