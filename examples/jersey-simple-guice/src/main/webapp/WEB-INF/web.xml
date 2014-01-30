@@ -1,3 +1,4 @@
+<!-- https://java.net/jira/browse/JERSEY-1889 -->
 <web-app>
     <listener>
         <listener-class>com.leacox.guice.example.simple.SimpleContextListener</listener-class>

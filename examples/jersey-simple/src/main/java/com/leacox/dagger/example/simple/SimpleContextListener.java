@@ -7,7 +7,6 @@ import javax.servlet.annotation.WebListener;
 /**
  * @author John Leacox
  */
-@WebListener
 public class SimpleContextListener extends DaggerServletContextListener {
     @Override
     protected Class<?>[] getBaseModules() {
@@ -22,5 +21,10 @@ public class SimpleContextListener extends DaggerServletContextListener {
     @Override
     protected Class<?>[] getSessionScopedModules() {
         return new Class<?>[0];
+    }
+
+    @Override
+    protected void configureServlets() {
+        
     }
 }
