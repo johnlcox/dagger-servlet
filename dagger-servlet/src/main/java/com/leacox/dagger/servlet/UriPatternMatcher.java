@@ -16,8 +16,6 @@
 
 package com.leacox.dagger.servlet;
 
-import com.leacox.dagger.servlet.UriPatternType;
-
 /**
  * A general interface for matching a URI against a URI pattern. Guice-servlet provides regex and
  * servlet-style pattern matching out of the box.

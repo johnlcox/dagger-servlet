@@ -16,8 +16,6 @@
 
 package com.leacox.dagger.servlet;
 
-import com.leacox.dagger.servlet.UriPatternMatcher;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
