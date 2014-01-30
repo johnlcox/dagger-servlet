@@ -1,5 +1,6 @@
 package com.leacox.dagger.example.simple;
 
+import com.leacox.dagger.servlet.DaggerContainer;
 import com.leacox.dagger.servlet.DaggerServletContextListener;
 
 import javax.servlet.annotation.WebListener;
@@ -25,6 +26,6 @@ public class SimpleContextListener extends DaggerServletContextListener {
 
     @Override
     protected void configureServlets() {
-        
+        serve("/*").with(DaggerContainer.class);
     }
 }

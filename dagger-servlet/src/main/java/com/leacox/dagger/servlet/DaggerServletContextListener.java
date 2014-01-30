@@ -37,6 +37,9 @@ public abstract class DaggerServletContextListener implements ServletContextList
                 Arrays.asList(getSessionScopedModules()));
         scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Class.class));
         servletContext.setAttribute(OBJECT_GRAPH_NAME, scopingObjectGraph);
+
+        // Make sure the dagger filter is injected
+        scopingObjectGraph.get(DaggerFilter.class);
     }
 
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
@@ -83,7 +86,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
     }
 
     private static class FilterDefinitionBuilderImpl implements FilterDefinitionBuilder {
-
         @Override
         public void through(Class<? extends Filter> filterClass) {
 
@@ -113,5 +115,27 @@ public abstract class DaggerServletContextListener implements ServletContextList
         void with(Class<? extends HttpServlet> servletClass, Map<String, String> initParams);
 
         void with(HttpServlet servlet, Map<String, String> initParams);
+    }
+
+    private static class ServletDefinitionBuilderImpl implements ServletDefinitionBuilder {
+        @Override
+        public void with(Class<? extends HttpServlet> servletClass) {
+
+        }
+
+        @Override
+        public void with(HttpServlet servlet) {
+
+        }
+
+        @Override
+        public void with(Class<? extends HttpServlet> servletClass, Map<String, String> initParams) {
+
+        }
+
+        @Override
+        public void with(HttpServlet servlet, Map<String, String> initParams) {
+
+        }
     }
 }

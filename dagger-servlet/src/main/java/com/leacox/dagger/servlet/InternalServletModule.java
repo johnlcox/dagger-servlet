@@ -38,8 +38,7 @@ class InternalServletModule {
 
     @Provides
     DaggerFilter provideDaggerFilter(FilterPipeline filterPipeline) {
-        return new DaggerFilter();
-        //return new DaggerFilter(filterPipeline);
+        return new DaggerFilter(filterPipeline);
     }
 
     @Provides

@@ -3,6 +3,7 @@ package com.leacox.dagger.servlet;
 import com.leacox.dagger.servlet.FilterPipeline;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,21 +14,19 @@ import java.util.concurrent.Callable;
 /**
  * @author John Leacox
  */
+@Singleton
 public class DaggerFilter implements Filter {
     private static ThreadLocal<DaggerContext> localContext = new ThreadLocal<DaggerContext>();
 
     private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
 
-    @Inject
-    FilterPipeline filterPipeline;
+    // @Inject
+    private final FilterPipeline filterPipeline;
 
-    public DaggerFilter() {
-        String stuff = "hi";
+    @Inject
+    DaggerFilter(FilterPipeline filterPipeline) {
+        this.filterPipeline = filterPipeline;
     }
-//    @Inject
-//    DaggerFilter(FilterPipeline filterPipeline) {
-//        this.filterPipeline = filterPipeline;
-//    }
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
