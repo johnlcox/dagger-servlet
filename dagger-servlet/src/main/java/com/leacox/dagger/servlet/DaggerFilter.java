@@ -1,7 +1,5 @@
 package com.leacox.dagger.servlet;
 
-import com.leacox.dagger.servlet.FilterPipeline;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.*;
@@ -17,21 +15,29 @@ import java.util.concurrent.Callable;
 @Singleton
 public class DaggerFilter implements Filter {
     private static ThreadLocal<DaggerContext> localContext = new ThreadLocal<DaggerContext>();
+    static volatile FilterPipeline pipeline = new DefaultFilterPipeline();
 
     private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
 
-    // @Inject
-    private final FilterPipeline filterPipeline;
-
+    // We allow both the static and dynamic versions of the pipeline to exist.
     @Inject
-    DaggerFilter(FilterPipeline filterPipeline) {
-        this.filterPipeline = filterPipeline;
-    }
+    FilterPipeline injectedPipeline;
+
+//    @Inject
+//    DaggerFilter(FilterPipeline injectedPipeline) {
+//        this.injectedPipeline = injectedPipeline;
+//    }    @Inject
+//    DaggerFilter(FilterPipeline injectedPipeline) {
+//        this.injectedPipeline = injectedPipeline;
+//    }
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
         DaggerContext previousContext = localContext.get();
+
+        // Prefer the injected pipeline, but fall back on the static one for web.xml users.
+        final FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -81,9 +87,9 @@ public class DaggerFilter implements Filter {
         return localContext.get();
     }
 
-    private FilterPipeline getFilterPipeline() {
-        return filterPipeline;
-    }
+//    private FilterPipeline getInjectedPipeline() {
+//        return injectedPipeline;
+//    }
 
     private static void reset() {
         localContext.remove();
@@ -95,14 +101,14 @@ public class DaggerFilter implements Filter {
 
         DaggerFilter.servletContext = new WeakReference<ServletContext>(servletContext);
 
-        FilterPipeline filterPipeline = getFilterPipeline();
+        FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
         filterPipeline.initPipeline(servletContext);
     }
 
     @Override
     public void destroy() {
         try {
-            FilterPipeline filterPipeline = getFilterPipeline();
+            FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
             filterPipeline.destroyPipeline();
         } finally {
             reset();

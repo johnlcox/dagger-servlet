@@ -17,6 +17,10 @@
 
 package com.leacox.dagger.servlet;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import dagger.ObjectGraph;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +35,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import static com.google.common.base.Preconditions.checkState;
+
 /**
  * A wrapping dispatcher for servlets, in much the same way as {@link ManagedFilterPipeline} is for
  * filters.
@@ -42,55 +48,36 @@ import javax.servlet.http.HttpServletRequestWrapper;
 @Singleton
 class ManagedServletPipeline {
     private final ServletDefinition[] servletDefinitions;
-    private static final TypeLiteral<ServletDefinition> SERVLET_DEFS =
-            TypeLiteral.get(ServletDefinition.class);
 
     @Inject
-    public ManagedServletPipeline(Injector injector) {
-        this.servletDefinitions = collectServletDefinitions(injector);
+    public ManagedServletPipeline(ServletDefinition[] servletDefinitions) {
+        this.servletDefinitions = servletDefinitions;
     }
 
     boolean hasServletsMapped() {
         return servletDefinitions.length > 0;
     }
 
-    /**
-     * Introspects the injector and collects all instances of bound {@code List<ServletDefinition>}
-     * into a master list.
-     * <p/>
-     * We have a guarantee that {@link com.google.inject.Injector#getBindings()} returns a map
-     * that preserves insertion order in entry-set iterators.
-     */
-    private ServletDefinition[] collectServletDefinitions(Injector injector) {
-        List<ServletDefinition> servletDefinitions = Lists.newArrayList();
-        for (Binding<ServletDefinition> entry : injector.findBindingsByType(SERVLET_DEFS)) {
-            servletDefinitions.add(entry.getProvider().get());
-        }
-
-        // Copy to a fixed size array for speed.
-        return servletDefinitions.toArray(new ServletDefinition[servletDefinitions.size()]);
-    }
-
-    public void init(ServletContext servletContext, Injector injector) throws ServletException {
+    public void init(ServletContext servletContext, ObjectGraph objectGraph) throws ServletException {
         Set<HttpServlet> initializedSoFar
                 = Sets.newSetFromMap(Maps.<HttpServlet, Boolean>newIdentityHashMap());
 
         for (ServletDefinition servletDefinition : servletDefinitions) {
-            servletDefinition.init(servletContext, injector, initializedSoFar);
+            servletDefinition.init(servletContext, objectGraph, initializedSoFar);
         }
     }
 
     public boolean service(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
 
-        //stop at the first matching servlet and service
+        // Stop at the first matching servlet and service.
         for (ServletDefinition servletDefinition : servletDefinitions) {
             if (servletDefinition.service(request, response)) {
                 return true;
             }
         }
 
-        //there was no match...
+        // There was no match...
         return false;
     }
 
@@ -117,7 +104,7 @@ class ManagedServletPipeline {
                 return new RequestDispatcher() {
                     public void forward(ServletRequest servletRequest, ServletResponse servletResponse)
                             throws ServletException, IOException {
-                        Preconditions.checkState(!servletResponse.isCommitted(),
+                        checkState(!servletResponse.isCommitted(),
                                 "Response has been committed--you can only call forward before"
                                         + " committing the response (hint: don't flush buffers)");
 

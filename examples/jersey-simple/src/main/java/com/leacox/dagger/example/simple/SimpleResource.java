@@ -12,14 +12,14 @@ import javax.ws.rs.core.Response;
  * @author John Leacox
  */
 @Path("/")
-public class SimpleResource extends DaggerContainer {
+public class SimpleResource {
     @Inject
     SimpleService simpleService;
 
-    @Inject
-    SimpleResource(ObjectGraph objectGraph, Class<?>[] modules) {
-        super(objectGraph, modules);
-    }
+//    @Inject
+//    SimpleResource(ObjectGraph objectGraph) {
+//        //super(objectGraph, modules);
+//    }
 
     @Path("display")
     @GET

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
+import java.util.logging.Filter;
 
 /**
  * @author John Leacox
@@ -18,9 +19,11 @@ import javax.servlet.ServletContext;
                 InternalServletModule.ServletContextProvider.class,
                 InternalServletModule.ObjectGraphProvider.class,
                 InternalServletModule.FullModulesProvider.class,
+                InternalServletModule.FilterDefinitionsProvider.class,
+                InternalServletModule.ServletDefinitionsProvider.class,
                 FilterPipeline.class,
-                DaggerFilterPipeline.class,
-                DaggerServletPipeline.class,
+                ManagedFilterPipeline.class,
+                ManagedServletPipeline.class,
                 DaggerFilter.class
         },
         library = true
@@ -36,10 +39,10 @@ class InternalServletModule {
         return servletPipeline;
     }
 
-    @Provides
-    DaggerFilter provideDaggerFilter(FilterPipeline filterPipeline) {
-        return new DaggerFilter(filterPipeline);
-    }
+//    @Provides
+//    DaggerFilter provideDaggerFilter(FilterPipeline injectedPipeline) {
+//        return new DaggerFilter(injectedPipeline);
+//    }
 
     @Provides
     @Singleton
@@ -55,8 +58,21 @@ class InternalServletModule {
 
     @Provides
     @Singleton
+    @ModuleClasses
     Class<?>[] provideFullModules(FullModulesProvider fullModulesProvider) {
         return fullModulesProvider.get();
+    }
+
+    @Provides
+    @Singleton
+    FilterDefinition[] provideFilterDefinitions(FilterDefinitionsProvider filterDefinitionsProvider) {
+        return filterDefinitionsProvider.get();
+    }
+
+    @Provides
+    @Singleton
+    ServletDefinition[] provideServletDefinitions(ServletDefinitionsProvider servletDefinitionsProvider) {
+        return servletDefinitionsProvider.get();
     }
 
     @Singleton
@@ -78,7 +94,7 @@ class InternalServletModule {
     }
 
     @Singleton
-    static public class ObjectGraphProvider implements Provider<ObjectGraph> {
+    static class ObjectGraphProvider implements Provider<ObjectGraph> {
         private ObjectGraph objectGraph;
 
         @Inject
@@ -96,7 +112,7 @@ class InternalServletModule {
     }
 
     @Singleton
-    static public class FullModulesProvider implements Provider<Class<?>[]> {
+    static class FullModulesProvider implements Provider<Class<?>[]> {
         private Class<?>[] modules;
 
         @Inject
@@ -110,6 +126,42 @@ class InternalServletModule {
         @Override
         public Class<?>[] get() {
             return modules;
+        }
+    }
+
+    @Singleton
+    static class FilterDefinitionsProvider implements Provider<FilterDefinition[]> {
+        private FilterDefinition[] filterDefinitions;
+
+        @Inject
+        FilterDefinitionsProvider() {
+        }
+
+        void set(FilterDefinition[] filterDefinitions) {
+            this.filterDefinitions = filterDefinitions;
+        }
+
+        @Override
+        public FilterDefinition[] get() {
+            return filterDefinitions;
+        }
+    }
+
+    @Singleton
+    static class ServletDefinitionsProvider implements Provider<ServletDefinition[]> {
+        private ServletDefinition[] servletDefinitions;
+
+        @Inject
+        ServletDefinitionsProvider() {
+        }
+
+        void set(ServletDefinition[] servletDefinitions) {
+            this.servletDefinitions = servletDefinitions;
+        }
+
+        @Override
+        public ServletDefinition[] get() {
+            return servletDefinitions;
         }
     }
 }

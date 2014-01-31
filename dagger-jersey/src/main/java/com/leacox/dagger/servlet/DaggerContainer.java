@@ -23,7 +23,7 @@ public class DaggerContainer extends ServletContainer {
     private WebApplication webApplication;
 
     @Inject
-    public DaggerContainer(ObjectGraph objectGraph, Class<?>[] modules) {
+    public DaggerContainer(ObjectGraph objectGraph, @ModuleClasses Class<?>[] modules) {
         this.objectGraph = objectGraph;
         this.modules = modules;
     }

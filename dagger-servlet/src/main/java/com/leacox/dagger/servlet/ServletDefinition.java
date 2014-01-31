@@ -17,6 +17,8 @@
 
 package com.leacox.dagger.servlet;
 
+import static com.leacox.dagger.servlet.ManagedServletPipeline.REQUEST_DISPATCHER_REQUEST;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import dagger.ObjectGraph;
@@ -25,9 +27,11 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -43,34 +47,45 @@ public class ServletDefinition {
     private final Class<? extends HttpServlet> servletClass;
     private final UriPatternMatcher patternMatcher;
     private final Map<String, String> initParams;
+    // set only if this was bound using a servlet instance.
+    private final HttpServlet servletInstance;
 
+    // Always set in init, our servlet is always presumed to be a singleton.
     private final AtomicReference<HttpServlet> httpServlet = new AtomicReference<HttpServlet>();
 
-    private boolean isInitialized = false;
-
     ServletDefinition(String pattern, Class<? extends HttpServlet> servletClass, UriPatternMatcher patternMatcher,
-                      Map<String, String> initParams) {
+                      Map<String, String> initParams, HttpServlet servletInstance) {
         this.pattern = pattern;
         this.servletClass = servletClass;
         this.patternMatcher = patternMatcher;
         this.initParams = Collections.unmodifiableMap(Maps.newHashMap(initParams));
+        this.servletInstance = servletInstance;
     }
 
-    public void init(final ServletContext servletContext, ObjectGraph objectGraph) throws ServletException {
-        if (isInitialized) {
-            return;
-        }
+    public ServletDefinition get() {
+        return this;
+    }
 
+    boolean shouldServe(String uri) {
+        return patternMatcher.matches(uri);
+    }
+
+    public void init(final ServletContext servletContext, ObjectGraph objectGraph,
+                     Set<HttpServlet> initializedSoFar) throws ServletException {
+        // This absolutely must be a singleton, and so is only initialized once.
         if (!Scopes.isSingleton(servletClass)) {
-            throw new ServletException("Servlets must be bound with singleton scope. " + servletClass +
-                    " was not bound with singleton scope.");
+            throw new ServletException("Servlets must be bound as singletons. "
+                    + servletClass + " was not bound in singleton scope.");
         }
 
         HttpServlet httpServlet = objectGraph.get(servletClass);
         this.httpServlet.set(httpServlet);
 
-        // TODO: Is the initializedSoFar Set needed?
+        if (initializedSoFar.contains(httpServlet)) {
+            return;
+        }
 
+        // Initialize our servlet with the configured context params and servlet context.
         httpServlet.init(new ServletConfig() {
             @Override
             public String getServletName() {
@@ -93,45 +108,72 @@ public class ServletDefinition {
             }
         });
 
-        isInitialized = true;
+        // Mark as initialized.
+        initializedSoFar.add(httpServlet);
     }
 
-    public void destroy() {
-        HttpServlet httpServlet = this.httpServlet.get();
+    public void destroy(Set<HttpServlet> destroyedSoFar) {
+        HttpServlet reference = httpServlet.get();
 
-        // TODO: Is the destroyedSoFar Set needed?
-
-        if (httpServlet == null) {
+        // Do nothing if this Servlet was invalid (usually due to not being scoped
+        // properly). According to Servlet Spec: it is "out of service", and does not
+        // need to be destroyed.
+        // Also prevent duplicate destroys to the same singleton that may appear
+        // more than once on the filter chain.
+        if (null == reference || destroyedSoFar.contains(reference)) {
             return;
         }
 
-        httpServlet.destroy();
+        try {
+            reference.destroy();
+        } finally {
+            destroyedSoFar.add(reference);
+        }
     }
 
-    boolean shouldServe(String uri) {
-        return patternMatcher.matches(uri);
-    }
-
+    /**
+     * Wrapper around the service chain to ensure a servlet is servicing what it must and provides it
+     * with a wrapped request.
+     *
+     * @return Returns true if this servlet triggered for the given request. Or false if
+     * dagger-servlet should continue dispatching down the servlet pipeline.
+     * @throws IOException      If thrown by underlying servlet
+     * @throws ServletException If thrown by underlying servlet
+     */
     public boolean service(ServletRequest servletRequest,
-                           ServletResponse servletResponse) {
+                           ServletResponse servletResponse) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String path = request.getRequestURI().substring(request.getContextPath().length());
 
         boolean serve = shouldServe(path);
 
+        // Invocations of the chain end at the first matched servlet.
         if (serve) {
             doService(servletRequest, servletResponse);
         }
 
+        // Return false if no servlet matched (so we can proceed down to the web.xml servlets).
         return serve;
     }
 
-    void doService(final ServletRequest servletRequest, ServletResponse servletResponse) {
-        HttpServletRequest request = new HttpServletRequestWrapper((HttpServletRequest) servletRequest) {
+    /**
+     * Utility that delegates to the actual service method of the servlet wrapped with a contextual
+     * request (i.e. with correctly computed path info).
+     * <p/>
+     * We need to suppress deprecation coz we use HttpServletRequestWrapper, which implements
+     * deprecated API for backwards compatibility.
+     */
+    void doService(final ServletRequest servletRequest, ServletResponse servletResponse)
+            throws ServletException, IOException {
+
+        HttpServletRequest request = new HttpServletRequestWrapper(
+                (HttpServletRequest) servletRequest) {
             private String path;
             private boolean pathComputed = false;
-            private String pathInfo;
+            //must use a boolean on the memo field, because null is a legal value (TODO no, it's not)
+
             private boolean pathInfoComputed = false;
+            private String pathInfo;
 
             @Override
             public String getPathInfo() {
@@ -169,6 +211,7 @@ public class ServletDefinition {
                 return computePath();
             }
 
+            @SuppressWarnings("deprecation")
             @Override
             public String getPathTranslated() {
                 final String info = getPathInfo();
@@ -176,6 +219,7 @@ public class ServletDefinition {
                 return (null == info) ? null : getRealPath(info);
             }
 
+            // Memoizer pattern.
             private String computePath() {
                 if (!isPathComputed()) {
                     String servletPath = super.getServletPath();
@@ -189,6 +233,16 @@ public class ServletDefinition {
 
                 return path;
             }
-        }
+        };
+
+        httpServlet.get().service(request, servletResponse);
+    }
+
+    String getServletClass() {
+        return servletClass.getCanonicalName();
+    }
+
+    String getPattern() {
+        return pattern;
     }
 }

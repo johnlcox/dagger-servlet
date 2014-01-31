@@ -25,7 +25,7 @@ import javax.ws.rs.ext.Providers;
 )
 public class JerseyModule {
     @Provides
-    public DaggerContainer provideDaggerContainer(ObjectGraph objectGraph, Class<?>[] modules) {
+    public DaggerContainer provideDaggerContainer(ObjectGraph objectGraph, @ModuleClasses Class<?>[] modules) {
         return new DaggerContainer(objectGraph, modules);
     }
 
