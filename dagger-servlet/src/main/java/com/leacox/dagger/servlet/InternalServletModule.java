@@ -30,13 +30,14 @@ import java.util.logging.Filter;
 )
 class InternalServletModule {
     @Provides
-    FilterPipeline providFilterPipeline(DaggerFilterPipeline filterPipeline) {
+    FilterPipeline providFilterPipeline(ManagedFilterPipeline filterPipeline) {
         return filterPipeline;
     }
 
     @Provides
-    ServletPipeline provideServletPipeline(DaggerServletPipeline servletPipeline) {
-        return servletPipeline;
+    @Singleton
+    ManagedServletPipeline provideServletPipeline(ServletDefinition[] servletDefinitions) {
+        return new ManagedServletPipeline(servletDefinitions);
     }
 
 //    @Provides
@@ -149,7 +150,7 @@ class InternalServletModule {
 
     @Singleton
     static class ServletDefinitionsProvider implements Provider<ServletDefinition[]> {
-        private ServletDefinition[] servletDefinitions;
+        private ServletDefinition[] servletDefinitions = new ServletDefinition[0];
 
         @Inject
         ServletDefinitionsProvider() {

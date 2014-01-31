@@ -21,7 +21,7 @@ public class SimpleResource {
 //        //super(objectGraph, modules);
 //    }
 
-    @Path("display")
+    @Path("/display")
     @GET
     public Response getDisplay() {
         return Response.ok(simpleService.getDisplay()).build();

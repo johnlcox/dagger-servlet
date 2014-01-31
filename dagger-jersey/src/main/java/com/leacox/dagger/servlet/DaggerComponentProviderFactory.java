@@ -29,7 +29,7 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
         //this.modules = modules;
 
         for (Class<?> module : modules) {
-            Module annotation = module.getClass().getAnnotation(Module.class);
+            Module annotation = module.getAnnotation(Module.class);
             register(config, annotation);
         }
     }

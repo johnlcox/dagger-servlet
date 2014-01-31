@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 /**
  * @author John Leacox
@@ -19,9 +20,38 @@ public class DaggerFilter implements Filter {
 
     private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
 
+    private static final String MULTIPLE_INJECTORS_WARNING =
+            "Multiple Servlet object graphs detected. This is a warning "
+                    + "indicating that you have more than one "
+                    + DaggerFilter.class.getSimpleName() + " running "
+                    + "in your web application. If this is deliberate, you may safely "
+                    + "ignore this message. If this is NOT deliberate however, "
+                    + "your application may not work as expected.";
+
     // We allow both the static and dynamic versions of the pipeline to exist.
+
+    // Default constructor needed for container managed construction
+    public DaggerFilter() {
+    }
+
     @Inject
     FilterPipeline injectedPipeline;
+
+    @Inject
+    DaggerFilter(FilterPipeline pipeline) {
+        // This can happen if you create many injectors and they all have their own
+        // servlet module. This is legal, caveat a small warning.
+        if (DaggerFilter.pipeline instanceof ManagedFilterPipeline) {
+            Logger.getLogger(DaggerFilter.class.getName()).warning(MULTIPLE_INJECTORS_WARNING);
+        }
+
+        // We overwrite the default pipeline
+        DaggerFilter.pipeline = pipeline;
+    }
+
+    private FilterPipeline getPipeline() {
+        return injectedPipeline != null ? injectedPipeline : pipeline;
+    }
 
 //    @Inject
 //    DaggerFilter(FilterPipeline injectedPipeline) {
@@ -37,7 +67,7 @@ public class DaggerFilter implements Filter {
         DaggerContext previousContext = localContext.get();
 
         // Prefer the injected pipeline, but fall back on the static one for web.xml users.
-        final FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
+        final FilterPipeline filterPipeline = getPipeline();
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -101,14 +131,14 @@ public class DaggerFilter implements Filter {
 
         DaggerFilter.servletContext = new WeakReference<ServletContext>(servletContext);
 
-        FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
+        FilterPipeline filterPipeline = getPipeline();
         filterPipeline.initPipeline(servletContext);
     }
 
     @Override
     public void destroy() {
         try {
-            FilterPipeline filterPipeline = injectedPipeline != null ? injectedPipeline : pipeline;
+            FilterPipeline filterPipeline = getPipeline();
             filterPipeline.destroyPipeline();
         } finally {
             reset();

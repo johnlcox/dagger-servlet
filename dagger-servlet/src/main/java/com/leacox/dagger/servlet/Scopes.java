@@ -11,7 +11,7 @@ class Scopes {
         Annotation[] annotations = clazz.getAnnotations();
         for (Annotation annotation : annotations) {
             Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (!annotationType.equals(Singleton.class)) {
+            if (annotationType.equals(Singleton.class)) {
                 return true;
             }
         }
