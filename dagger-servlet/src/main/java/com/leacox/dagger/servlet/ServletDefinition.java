@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
  * @author John Leacox
- * @see <a href="https://code.google.com/p/google-guice/source/browse/extensions/servlet/src/com/google/inject/servlet/ServletDefinition.java?name=3.0">guice-servlet-3.0 ServletDefinition</a>
  */
 public class ServletDefinition {
     private final String pattern;

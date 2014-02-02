@@ -180,7 +180,7 @@ public class ContextPathTest {
     //
     // these values have been captured using a filter in Apache Tomcat 6.0.32
     // and are used for real-world values that a servlet container would send into
-    // the GuiceFilter.
+    // the DaggerFilter.
     //
     // the remaining three booleans are:
     //

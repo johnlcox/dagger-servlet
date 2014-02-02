@@ -30,6 +30,7 @@ import javax.servlet.ServletContext;
  */
 @Module(
         injects = {
+                ServletContext.class
         },
         includes = {
                 InternalServletModule.class

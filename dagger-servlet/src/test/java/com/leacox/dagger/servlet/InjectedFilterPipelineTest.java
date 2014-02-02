@@ -32,34 +32,58 @@
 
 package com.leacox.dagger.servlet;
 
-import dagger.Module;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
-import static org.easymock.EasyMock.*;
+import dagger.Module;
+import dagger.ObjectGraph;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.isNull;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
 import static org.testng.Assert.fail;
 
 /**
- * This is a basic whitebox test that verifies the glue between
- * DaggerFilter and ManagedFilterPipeline is working.
+ * Exactly the same as {@linkplain com.leacox.dagger.servlet.FilterPipelineTest} except
+ * that we test that the static pipeline is not used.
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
  * @author John Leacox
  */
-public class FilterPipelineTest {
+public class InjectedFilterPipelineTest {
+    private ObjectGraph objectGraph1;
+    private ObjectGraph objectGraph2;
+
+//    private Injector injector1;
+//    private Injector injector2;
+
+    @Module(
+            injects = {
+                    TestFilter.class,
+                    NeverFilter.class
+            },
+            includes = {
+                    ServletModule.class
+            }
+    )
+    static class TestModule {
+
+    }
 
     @BeforeMethod
     public final void setUp() {
-        DaggerFilter.reset();
-
-        ServletContextListener contextListener = new DaggerServletContextListener() {
+        DaggerServletContextListener contextListener1 = new DaggerServletContextListener() {
             @Override
             protected Class<?>[] getBaseModules() {
                 return new Class<?>[]{TestModule.class};
@@ -88,18 +112,50 @@ public class FilterPipelineTest {
             }
         };
 
-        ServletContext servletContext = createMock(ServletContext.class);
-        contextListener.contextInitialized(new ServletContextEvent(servletContext));
+        ServletContext servletContext1 = createMock(ServletContext.class);
+        contextListener1.contextInitialized(new ServletContextEvent(servletContext1));
+        objectGraph1 = contextListener1.getObjectGraph();
+
+        // Test second injector with exactly opposite pipeline config
+        DaggerServletContextListener contextListener2 = new DaggerServletContextListener() {
+            @Override
+            protected Class<?>[] getBaseModules() {
+                return new Class<?>[]{TestModule.class};
+            }
+
+            @Override
+            protected Class<?>[] getRequestScopedModules() {
+                return new Class<?>[]{ServletRequestModule.class};
+            }
+
+            @Override
+            protected Class<?>[] getSessionScopedModules() {
+                return new Class<?>[0];
+            }
+
+            @Override
+            protected void configureServlets() {
+                // These filters should never fire
+                filter("*.html").through(NeverFilter.class);
+                filter("/non-jsp/*").through(NeverFilter.class);
+
+                // only these filters fire.
+                filter("/index/*").through(TestFilter.class);
+                filter("/public/login/*").through(TestFilter.class);
+            }
+        };
+
+        ServletContext servletContext2 = createMock(ServletContext.class);
+        contextListener2.contextInitialized(new ServletContextEvent(servletContext2));
+        objectGraph2 = contextListener2.getObjectGraph();
     }
 
     @AfterMethod
     public final void tearDown() {
-        DaggerFilter.reset();
     }
 
     @Test
-    public final void testDispatchThruDaggerFilter() throws ServletException, IOException {
-
+    public final void testDispatchThruInjectedDaggerFilter() throws ServletException, IOException {
         //create mocks
         FilterConfig filterConfig = createMock(FilterConfig.class);
         ServletContext servletContext = createMock(ServletContext.class);
@@ -113,7 +169,7 @@ public class FilterPipelineTest {
                 .once();
 
         expect(request.getRequestURI())
-                .andReturn("/public/login.jsp")
+                .andReturn("/non-jsp/login.html") // use a path that will fail in injector2
                 .anyTimes();
         expect(request.getContextPath())
                 .andReturn("")
@@ -126,7 +182,7 @@ public class FilterPipelineTest {
         //run mock script ***
         replay(filterConfig, servletContext, request, proceedingFilterChain);
 
-        final DaggerFilter webFilter = new DaggerFilter();
+        DaggerFilter webFilter = objectGraph1.get(DaggerFilter.class);
 
         webFilter.init(filterConfig);
         webFilter.doFilter(request, null, proceedingFilterChain);
@@ -134,19 +190,41 @@ public class FilterPipelineTest {
 
         //assert expectations
         verify(filterConfig, servletContext, request, proceedingFilterChain);
-    }
 
-    @Module(
-            injects = {
-                    TestFilter.class,
-                    NeverFilter.class
-            },
-            includes = {
-                    ServletModule.class
-            }
-    )
-    static class TestModule {
 
+        // reset mocks and run them against the other injector
+        reset(filterConfig, servletContext, request, proceedingFilterChain);
+
+        // Create a second proceeding filter chain
+        FilterChain proceedingFilterChain2 = createMock(FilterChain.class);
+
+        //begin mock script ***
+
+        expect(filterConfig.getServletContext())
+                .andReturn(servletContext)
+                .once();
+        expect(request.getRequestURI())
+                .andReturn("/public/login/login.jsp") // use a path that will fail in injector1
+                .anyTimes();
+        expect(request.getContextPath())
+                .andReturn("")
+                .anyTimes();
+
+        //at the end, proceed down webapp's normal filter chain
+        proceedingFilterChain2.doFilter(isA(HttpServletRequest.class), (ServletResponse) isNull());
+        expectLastCall().once();
+
+        // Never fire on this pipeline
+        replay(filterConfig, servletContext, request, proceedingFilterChain2, proceedingFilterChain);
+
+        webFilter = objectGraph2.get(DaggerFilter.class);
+
+        webFilter.init(filterConfig);
+        webFilter.doFilter(request, null, proceedingFilterChain2);
+        webFilter.destroy();
+
+        // Verify that we have not crossed the streams, Venkman!
+        verify(filterConfig, servletContext, request, proceedingFilterChain, proceedingFilterChain2);
     }
 
     @Singleton
@@ -155,7 +233,8 @@ public class FilterPipelineTest {
         TestFilter() {}
 
         @Override
-        public void init(FilterConfig filterConfig) throws ServletException { }
+        public void init(FilterConfig filterConfig) throws ServletException {
+        }
 
         @Override
         public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
@@ -164,7 +243,8 @@ public class FilterPipelineTest {
         }
 
         @Override
-        public void destroy() { }
+        public void destroy() {
+        }
     }
 
     @Singleton
@@ -173,7 +253,8 @@ public class FilterPipelineTest {
         NeverFilter() {}
 
         @Override
-        public void init(FilterConfig filterConfig) throws ServletException { }
+        public void init(FilterConfig filterConfig) throws ServletException {
+        }
 
         @Override
         public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
@@ -182,6 +263,7 @@ public class FilterPipelineTest {
         }
 
         @Override
-        public void destroy() { }
+        public void destroy() {
+        }
     }
 }

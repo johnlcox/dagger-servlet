@@ -17,7 +17,7 @@
 package com.leacox.dagger.servlet;
 
 /**
- * A general interface for matching a URI against a URI pattern. Guice-servlet provides regex and
+ * A general interface for matching a URI against a URI pattern. Dagger-servlet provides regex and
  * servlet-style pattern matching out of the box.
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
