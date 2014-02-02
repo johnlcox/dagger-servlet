@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.leacox.dagger.servlet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import dagger.ObjectGraph;
 
@@ -39,7 +41,6 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
  * @author John Leacox
- * @see <a href="https://code.google.com/p/google-guice/source/browse/extensions/servlet/src/com/google/inject/servlet/FilterDefinition.java?name=3.0">guice-servlet-3.0 ManagedFilterPipeline</a>
  */
 class FilterDefinition {
     private final String pattern;
@@ -71,14 +72,21 @@ class FilterDefinition {
 
     public void init(final ServletContext servletContext, ObjectGraph objectGraph,
                      Set<Filter> initializedSoFar) throws ServletException {
-
         // This absolutely must be a singleton, and so is only initialized once.
-        if (!Scopes.isSingleton(filterClass)) {
-            throw new ServletException("Filters must be bound as singletons. "
-                    + filterClass + " was not bound in singleton scope.");
-        }
+        // TODO: There isn't a good way to make sure the class is a singleton. Classes with the @Singleton annotation
+        // can be identified, but classes that are singletons via an @Singleton annotated @Provides method won't
+        // be identified as singletons. Bad stuff may happen for non-singletons.
+//        if (!Scopes.isSingleton(filterClass)) {
+//            throw new ServletException("Filters must be bound as singletons. "
+//                    + filterClass + " was not bound in singleton scope.");
+//        }
 
-        Filter filter = objectGraph.get(filterClass);
+        Filter filter;
+        if (filterInstance == null) {
+            filter = objectGraph.get(filterClass);
+        } else {
+            filter = filterInstance;
+        }
         this.filter.set(filter);
 
         // Only fire init() if this Singleton filter has not already appeared earlier
@@ -89,19 +97,23 @@ class FilterDefinition {
 
         // Initialize our filter with the configured context params and servlet context.
         filter.init(new FilterConfig() {
+            @Override
             public String getFilterName() {
                 return filterClass.getCanonicalName();
             }
 
+            @Override
             public ServletContext getServletContext() {
                 return servletContext;
             }
 
+            @Override
             public String getInitParameter(String s) {
                 return initParams.get(s);
             }
 
-            public Enumeration getInitParameterNames() {
+            @Override
+            public Enumeration<String> getInitParameterNames() {
                 return Iterators.asEnumeration(initParams.keySet().iterator());
             }
         });
@@ -146,7 +158,7 @@ class FilterDefinition {
         }
     }
 
-    //VisibleForTesting
+    @VisibleForTesting
     Filter getFilter() {
         return filter.get();
     }

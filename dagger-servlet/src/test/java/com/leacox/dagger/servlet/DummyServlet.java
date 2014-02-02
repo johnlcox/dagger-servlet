@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 John Leacox
+ * Copyright (C) 2008 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.leacox.dagger.servlet;
 
-import dagger.Module;
+
+import javax.inject.Singleton;
+import javax.servlet.http.HttpServlet;
 
 /**
- * A Dagger module that provides request scoped servlet related bindings for internal use by dagger-servlet as well as
- * bindings for {@link javax.servlet.ServletRequest}, {@link javax.servlet.ServletResponse}, and
- * {@link javax.servlet.http.HttpSession} for users of dagger-servlet.
+ * Used in unit tests to verify the EDSL.
  *
- * @author John Leacox
+ * @author Dhanji R. Prasanna (dhanji@gmail com)
  */
-@Module(
-        injects = {
-        },
-        addsTo = ServletModule.class,
-        includes = {
-                InternalServletRequestModule.class
-        }
-)
-public class ServletRequestModule {
+@Singleton
+public class DummyServlet extends HttpServlet {
+
 }

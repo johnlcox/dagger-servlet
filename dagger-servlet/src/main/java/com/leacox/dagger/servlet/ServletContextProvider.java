@@ -16,16 +16,28 @@
 
 package com.leacox.dagger.servlet;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.servlet.ServletContext;
 
 /**
  * @author John Leacox
  */
-@Qualifier
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@interface ModuleClasses {
+@Singleton
+final class ServletContextProvider implements Provider<ServletContext> {
+    private ServletContext servletContext;
+
+    @Inject
+    ServletContextProvider() {
+    }
+
+    public void set(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
+    @Override
+    public ServletContext get() {
+        return servletContext;
+    }
 }

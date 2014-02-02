@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import dagger.ObjectGraph;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,14 +42,13 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
  * @author John Leacox
- * @see <a href="https://code.google.com/p/google-guice/source/browse/extensions/servlet/src/com/google/inject/servlet/ManagedServletPipeline.java?name=3.0">guice-servlet-3.0 ManagedFilterPipeline</a>
  */
 @Singleton
 class ManagedServletPipeline {
     private final ServletDefinition[] servletDefinitions;
 
     @Inject
-    public ManagedServletPipeline(ServletDefinition[] servletDefinitions) {
+    ManagedServletPipeline(ServletDefinition[] servletDefinitions) {
         this.servletDefinitions = servletDefinitions;
     }
 
@@ -69,7 +67,6 @@ class ManagedServletPipeline {
 
     public boolean service(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
-
         // Stop at the first matching servlet and service.
         for (ServletDefinition servletDefinition : servletDefinitions) {
             if (servletDefinition.service(request, response)) {
@@ -102,6 +99,7 @@ class ManagedServletPipeline {
         for (final ServletDefinition servletDefinition : servletDefinitions) {
             if (servletDefinition.shouldServe(path)) {
                 return new RequestDispatcher() {
+                    @Override
                     public void forward(ServletRequest servletRequest, ServletResponse servletResponse)
                             throws ServletException, IOException {
                         checkState(!servletResponse.isCommitted(),
@@ -131,6 +129,7 @@ class ManagedServletPipeline {
                         }
                     }
 
+                    @Override
                     public void include(ServletRequest servletRequest, ServletResponse servletResponse)
                             throws ServletException, IOException {
                         servletRequest.setAttribute(REQUEST_DISPATCHER_REQUEST, Boolean.TRUE);

@@ -27,7 +27,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +35,6 @@ import java.util.Set;
  *
  * @author dhanji@gmail.com (Dhanji R. Prasanna)
  * @author John Leacox
- * @see <a href="https://code.google.com/p/google-guice/source/browse/extensions/servlet/src/com/google/inject/servlet/ManagedFilterPipeline.java?name=3.0">guice-servlet-3.0 ManagedFilterPipeline</a>
  */
 @Singleton
 class ManagedFilterPipeline implements FilterPipeline {
@@ -51,8 +49,8 @@ class ManagedFilterPipeline implements FilterPipeline {
     private volatile boolean initialized = false;
 
     @Inject
-    public ManagedFilterPipeline(ObjectGraph objectGraph, ManagedServletPipeline servletPipeline,
-                                 ServletContext servletContext, FilterDefinition[] filterDefinitions) {
+    ManagedFilterPipeline(ObjectGraph objectGraph, ManagedServletPipeline servletPipeline,
+                          ServletContext servletContext, FilterDefinition[] filterDefinitions) {
         this.objectGraph = objectGraph;
         this.servletPipeline = servletPipeline;
         this.servletContext = servletContext;
@@ -60,9 +58,9 @@ class ManagedFilterPipeline implements FilterPipeline {
         this.filterDefinitions = filterDefinitions;
     }
 
+    @Override
     public synchronized void initPipeline(ServletContext servletContext)
             throws ServletException {
-
         //double-checked lock, prevents duplicate initialization
         if (initialized)
             return;
@@ -81,6 +79,7 @@ class ManagedFilterPipeline implements FilterPipeline {
         initialized = true;
     }
 
+    @Override
     public void dispatch(ServletRequest request, ServletResponse response,
                          FilterChain proceedingFilterChain) throws IOException, ServletException {
         if (!initialized) {
@@ -94,20 +93,19 @@ class ManagedFilterPipeline implements FilterPipeline {
     }
 
     /**
-     * Used to create an proxy that dispatches either to the guice-servlet pipeline or the regular
+     * Used to create an proxy that dispatches either to the dagger-servlet pipeline or the regular
      * pipeline based on uri-path match. This proxy also provides minimal forwarding support.
      * <p/>
-     * We cannot forward from a web.xml Servlet/JSP to a guice-servlet (because the filter pipeline
+     * We cannot forward from a web.xml Servlet/JSP to a dagger-servlet (because the filter pipeline
      * is not called again). However, we can wrap requests with our own dispatcher to forward the
      * *other* way. web.xml Servlets/JSPs can forward to themselves as per normal.
      * <p/>
-     * This is not a problem cuz we intend for people to migrate from web.xml to guice-servlet,
+     * This is not a problem cuz we intend for people to migrate from web.xml to dagger-servlet,
      * incrementally, but not the other way around (which, we should actively discourage).
      */
     @SuppressWarnings({"JavaDoc", "deprecation"})
     private ServletRequest withDispatcher(ServletRequest servletRequest,
                                           final ManagedServletPipeline servletPipeline) {
-
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
         // don't wrap the request if there are no servlets mapped. This prevents us from inserting our
@@ -129,6 +127,7 @@ class ManagedFilterPipeline implements FilterPipeline {
         };
     }
 
+    @Override
     public void destroyPipeline() {
         //destroy servlets first
         servletPipeline.destroy();

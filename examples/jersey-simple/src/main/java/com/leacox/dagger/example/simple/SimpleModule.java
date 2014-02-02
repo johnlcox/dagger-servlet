@@ -1,6 +1,6 @@
 package com.leacox.dagger.example.simple;
 
-import com.leacox.dagger.servlet.JerseyModule;
+import com.leacox.dagger.jersey.JerseyModule;
 import com.leacox.dagger.servlet.ServletModule;
 import dagger.Module;
 import dagger.Provides;

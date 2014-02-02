@@ -34,7 +34,6 @@ import java.io.IOException;
  *
  * @author Dhanji R. Prasanna
  * @author John Leacox
- * @see <a href="https://code.google.com/p/google-guice/source/browse/extensions/servlet/src/com/google/inject/servlet/FilterChainInvocation.java?name=3.0">guice-servlet-3.0 ManagedFilterPipeline</a>
  */
 class FilterChainInvocation implements FilterChain {
     private final FilterDefinition[] filterDefinitions;
@@ -46,12 +45,12 @@ class FilterChainInvocation implements FilterChain {
 
     public FilterChainInvocation(FilterDefinition[] filterDefinitions,
                                  ManagedServletPipeline servletPipeline, FilterChain proceedingChain) {
-
         this.filterDefinitions = filterDefinitions;
         this.servletPipeline = servletPipeline;
         this.proceedingChain = proceedingChain;
     }
 
+    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
         index++;
@@ -60,7 +59,6 @@ class FilterChainInvocation implements FilterChain {
         if (index < filterDefinitions.length) {
             filterDefinitions[index].doFilter(servletRequest, servletResponse, this);
         } else {
-
             //we've reached the end of the filterchain, let's try to dispatch to a servlet
             final boolean serviced = servletPipeline.service(servletRequest, servletResponse);
 

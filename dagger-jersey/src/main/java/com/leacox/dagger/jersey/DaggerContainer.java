@@ -1,5 +1,6 @@
-package com.leacox.dagger.servlet;
+package com.leacox.dagger.jersey;
 
+import com.leacox.dagger.servlet.internal.ModuleClasses;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.spi.container.WebApplication;

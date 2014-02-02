@@ -73,12 +73,20 @@ public class ServletDefinition {
     public void init(final ServletContext servletContext, ObjectGraph objectGraph,
                      Set<HttpServlet> initializedSoFar) throws ServletException {
         // This absolutely must be a singleton, and so is only initialized once.
-        if (!Scopes.isSingleton(servletClass)) {
-            throw new ServletException("Servlets must be bound as singletons. "
-                    + servletClass + " was not bound in singleton scope.");
-        }
+        // TODO: There isn't a good way to make sure the class is a singleton. Classes with the @Singleton annotation
+        // can be identified, but classes that are singletons via an @Singleton annotated @Provides method won't
+        // be identified as singletons. Bad stuff may happen for non-singletons.
+//        if (!Scopes.isSingleton(servletClass)) {
+//            throw new ServletException("Servlets must be bound as singletons. "
+//                    + servletClass + " was not bound in singleton scope.");
+//        }
 
-        HttpServlet httpServlet = objectGraph.get(servletClass);
+        HttpServlet httpServlet;
+        if (servletInstance == null) {
+            httpServlet = objectGraph.get(servletClass);
+        } else {
+            httpServlet = servletInstance;
+        }
         this.httpServlet.set(httpServlet);
 
         if (initializedSoFar.contains(httpServlet)) {

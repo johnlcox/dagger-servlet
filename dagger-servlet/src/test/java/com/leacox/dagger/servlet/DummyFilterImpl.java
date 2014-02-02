@@ -16,34 +16,34 @@
 
 package com.leacox.dagger.servlet;
 
+import javax.servlet.*;
 import java.io.IOException;
 
-import javax.inject.Singleton;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 /**
- * This default pipeline simply dispatches to web.xml's servlet pipeline.
+ * Used in unit tests to verify the EDSL.
  *
- * @author dhanji@gmail.com (Dhanji R. Prasanna)
+ * @author Dhanji R. Prasanna (dhanji@gmail com)
  */
-@Singleton
-class DefaultFilterPipeline implements FilterPipeline {
-    @Override
-    public void initPipeline(ServletContext context) {
+public class DummyFilterImpl implements Filter {
+    int num;
+
+    public DummyFilterImpl() {
+    }
+
+    public DummyFilterImpl(int num) {
+        this.num = num;
     }
 
     @Override
-    public void destroyPipeline() {
+    public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     @Override
-    public void dispatch(ServletRequest request, ServletResponse response,
-                         FilterChain proceedingFilterChain) throws IOException, ServletException {
-        proceedingFilterChain.doFilter(request, response);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
+    }
+
+    @Override
+    public void destroy() {
     }
 }
-

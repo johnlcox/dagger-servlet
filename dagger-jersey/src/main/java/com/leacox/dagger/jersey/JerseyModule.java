@@ -1,5 +1,7 @@
-package com.leacox.dagger.servlet;
+package com.leacox.dagger.jersey;
 
+import com.leacox.dagger.servlet.internal.ModuleClasses;
+import com.leacox.dagger.servlet.ServletModule;
 import com.sun.jersey.api.core.*;
 import com.sun.jersey.core.util.FeaturesAndProperties;
 import com.sun.jersey.spi.MessageBodyWorkers;

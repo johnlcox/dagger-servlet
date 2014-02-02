@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package com.leacox.dagger.servlet;
+package com.leacox.dagger.servlet.internal;
 
-import dagger.Module;
+import javax.inject.Qualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
- * A Dagger module that provides request scoped servlet related bindings for internal use by dagger-servlet as well as
- * bindings for {@link javax.servlet.ServletRequest}, {@link javax.servlet.ServletResponse}, and
- * {@link javax.servlet.http.HttpSession} for users of dagger-servlet.
- *
  * @author John Leacox
  */
-@Module(
-        injects = {
-        },
-        addsTo = ServletModule.class,
-        includes = {
-                InternalServletRequestModule.class
-        }
-)
-public class ServletRequestModule {
+@Qualifier
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ModuleClasses {
 }

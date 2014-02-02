@@ -1,4 +1,4 @@
-package com.leacox.dagger.servlet;
+package com.leacox.dagger.jersey;
 
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;

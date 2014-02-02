@@ -1,4 +1,4 @@
-package com.leacox.dagger.servlet;
+package com.leacox.dagger.jersey;
 
 /**
  * @author John Leacox

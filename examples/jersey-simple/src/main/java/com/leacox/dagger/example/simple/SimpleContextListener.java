@@ -1,9 +1,7 @@
 package com.leacox.dagger.example.simple;
 
-import com.leacox.dagger.servlet.DaggerContainer;
+import com.leacox.dagger.jersey.DaggerContainer;
 import com.leacox.dagger.servlet.DaggerServletContextListener;
-
-import javax.servlet.annotation.WebListener;
 
 /**
  * @author John Leacox
