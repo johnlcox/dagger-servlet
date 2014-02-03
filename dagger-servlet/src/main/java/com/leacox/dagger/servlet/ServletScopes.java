@@ -20,9 +20,9 @@ package com.leacox.dagger.servlet;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.hash.HashCode;
 import com.leacox.dagger.servlet.scope.Scope;
 import dagger.Lazy;
+import dagger.ObjectGraph;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -78,7 +78,7 @@ public class ServletScopes {
      */
     public static final Scope REQUEST = new Scope() {
         @Override
-        public <T> Lazy<T> scope(Class<T> type, final Lazy<T> creator) {
+        public <T> Lazy<T> scope(final Class<T> type, final ObjectGraph creator) {
             final String name = DaggerKey.get(type).toString(); //"DaggerKey[type=" + type + "]";
             return new Lazy<T>() {
                 @Override
@@ -101,7 +101,7 @@ public class ServletScopes {
                             }
 
                             if (t == null) {
-                                t = creator.get();
+                                t = creator.get(type);
                                 // Store a sentinel for provider-given null values.
                                 scopeMap.put(name, t != null ? t : NullObject.INSTANCE);
                             }
@@ -121,7 +121,7 @@ public class ServletScopes {
                         @SuppressWarnings("unchecked")
                         T t = (T) obj;
                         if (t == null) {
-                            t = creator.get();
+                            t = creator.get(type);
                             request.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
                         }
                         return t;
@@ -140,7 +140,7 @@ public class ServletScopes {
      */
     public static final Scope SESSION = new Scope() {
         @Override
-        public <T> Lazy<T> scope(Class<T> type, final Lazy<T> creator) {
+        public <T> Lazy<T> scope(final Class<T> type, final ObjectGraph creator) {
             final String name = DaggerKey.get(type).toString(); //"DaggerKey[type=" + type + "]";
             return new Lazy<T>() {
                 @Override
@@ -154,7 +154,7 @@ public class ServletScopes {
                         @SuppressWarnings("unchecked")
                         T t = (T) obj;
                         if (t == null) {
-                            t = creator.get();
+                            t = creator.get(type);
                             session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
                         }
                         return t;

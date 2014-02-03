@@ -19,7 +19,9 @@ package dagger;
 import com.google.common.collect.Maps;
 import com.leacox.dagger.servlet.RequestScoped;
 import com.leacox.dagger.servlet.DaggerFilter;
+import com.leacox.dagger.servlet.ServletScopes;
 import com.leacox.dagger.servlet.SessionScoped;
+import com.leacox.dagger.servlet.scope.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -37,6 +39,9 @@ import java.util.Map;
 public class ScopingObjectGraph extends ObjectGraph {
     private final ObjectGraph objectGraph;
     private final Map<Class<? extends Annotation>, Object[]> scopedModules;
+
+    private final Scope requestScope = ServletScopes.REQUEST;
+    private final Scope sessionScope = ServletScopes.SESSION;
 
     ScopingObjectGraph(ObjectGraph objectGraph, Map<Class<? extends Annotation>, Object[]> scopedModules) {
         this.objectGraph = objectGraph;
@@ -63,9 +68,11 @@ public class ScopingObjectGraph extends ObjectGraph {
                 scopedModules.get(RequestScoped.class));
 
         if (isRequestScoped(type)) {
-            return requestScopedGet(type, scopedGraph);
+            return requestScope.scope(type, scopedGraph).get();
+            //return requestScopedGet(type, scopedGraph);
         } else if (isSessionScoped(type)) {
-            return sessionScopedGet(type, scopedGraph);
+            return sessionScope.scope(type, scopedGraph).get();
+            //return sessionScopedGet(type, scopedGraph);
         } else {
             return scopedGraph.get(type);
         }
