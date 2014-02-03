@@ -121,6 +121,9 @@ public class ScopingObjectGraph extends ObjectGraph {
         }
     }
 
+    // TODO: Add validation of classes and objects so we can make sure the filter/servlet classes have injections
+    // and fail early instead of when we try to inject it on an actual request.
+
     @Override
     public void injectStatics() {
         // TODO: Should this do anything scope related?
