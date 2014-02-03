@@ -18,16 +18,20 @@
 package com.leacox.dagger.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 /**
@@ -57,7 +61,7 @@ import java.util.logging.Logger;
  */
 @Singleton
 public class DaggerFilter implements Filter {
-    private static ThreadLocal<Context> localContext = new ThreadLocal<Context>();
+    static ThreadLocal<Context> localContext = new ThreadLocal<Context>();
     static volatile FilterPipeline pipeline = new DefaultFilterPipeline();
 
     private static volatile WeakReference<ServletContext> servletContext = new WeakReference<ServletContext>(null);
@@ -102,33 +106,23 @@ public class DaggerFilter implements Filter {
     }
 
     @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+    public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+                         final FilterChain filterChain)
             throws IOException, ServletException {
-        Context previousContext = localContext.get();
+        Context previous = localContext.get();
 
         // Prefer the injected pipeline, but fall back on the static one for web.xml users.
         final FilterPipeline filterPipeline = getPipeline();
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        HttpServletRequest originalHttpRequest = (previousContext != null) ?
-                previousContext.getOriginalRequest() : httpRequest;
-
         try {
-            new Context(originalHttpRequest, httpRequest, httpResponse).call(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    //dispatch across the servlet pipeline, ensuring web.xml's filterchain is honored
-                    filterPipeline.dispatch(request, response, chain);
-                    return null;
-                }
-            });
-        } catch (IOException e) {
-            throw e;
-        } catch (ServletException e) {
-            throw e;
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
+            localContext.set(new Context((HttpServletRequest) servletRequest,
+                    (HttpServletResponse) servletResponse));
+
+            //dispatch across the servlet pipeline, ensuring web.xml's filterchain is honored
+            filterPipeline.dispatch(servletRequest, servletResponse, filterChain);
+
+        } finally {
+            localContext.set(previous);
         }
     }
 
@@ -215,20 +209,14 @@ public class DaggerFilter implements Filter {
         }
     }
 
-    private static class Context {
-        private final HttpServletRequest originalRequest;
-        private final HttpServletRequest request;
-        private final HttpServletResponse response;
-        volatile Thread owner;
+    static class Context {
 
-        Context(HttpServletRequest originalRequest, HttpServletRequest request, HttpServletResponse response) {
-            this.originalRequest = originalRequest;
+        final HttpServletRequest request;
+        final HttpServletResponse response;
+
+        Context(HttpServletRequest request, HttpServletResponse response) {
             this.request = request;
             this.response = response;
-        }
-
-        HttpServletRequest getOriginalRequest() {
-            return originalRequest;
         }
 
         HttpServletRequest getRequest() {
@@ -237,20 +225,6 @@ public class DaggerFilter implements Filter {
 
         HttpServletResponse getResponse() {
             return response;
-        }
-
-        <T> T call(Callable<T> callable) throws Exception {
-            Thread oldOwner = owner;
-            owner = Thread.currentThread();
-
-            Context previousContext = localContext.get();
-            localContext.set(this);
-            try {
-                return callable.call();
-            } finally {
-                owner = oldOwner;
-                localContext.set(previousContext);
-            }
         }
     }
 }
