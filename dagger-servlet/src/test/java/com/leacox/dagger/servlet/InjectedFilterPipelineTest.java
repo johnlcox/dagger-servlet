@@ -152,6 +152,7 @@ public class InjectedFilterPipelineTest {
 
     @AfterMethod
     public final void tearDown() {
+        DaggerFilter.reset();
     }
 
     @Test

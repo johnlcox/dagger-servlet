@@ -115,8 +115,8 @@ public abstract class DaggerServletContextListener implements ServletContextList
 
             ObjectGraph unscopedGraph = ObjectGraph.create((Object[]) getBaseModules());
             ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(unscopedGraph)
-                    .addScopedModules(RequestScoped.class, (Object[]) getRequestScopedModules())
-                    .addScopedModules(SessionScoped.class, (Object[]) getSessionScopedModules());
+                    .addScopedModules(RequestScoped.class, (Class<?>[]) getRequestScopedModules())
+                    .addScopedModules(SessionScoped.class, (Class<?>[]) getSessionScopedModules());
 
             scopingObjectGraph.get(ServletContextProvider.class).set(servletContext);
             scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);

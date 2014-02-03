@@ -82,17 +82,7 @@ public class ServletDispatchIntegrationTest {
             }
     )
     static class TestModule {
-//        @Provides
-//        @Singleton
-//        TestServlet provideFooTestServlet() {
-//            return new TestServlet();
-//        }
-//
-//        @Provides
-//        @Singleton
-//        NeverServlet provideBarTestServlet() {
-//            return new NeverServlet();
-//        }
+
     }
 
     @Test
