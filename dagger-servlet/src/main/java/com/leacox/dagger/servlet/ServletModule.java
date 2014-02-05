@@ -23,8 +23,11 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 /**
- * A Dagger module that provides servlet related bindings for internal use by dagger-servlet as well as a binding for
- * {@link ServletContext} for users of dagger-servlet.
+ * A Dagger module that provides application wide servlet related bindings. In addition to the internal bindings the
+ * following bindings are provided:
+ * <ul>
+ * <li>{@link ServletContext}</li>
+ * </ul>
  *
  * @author John Leacox
  */

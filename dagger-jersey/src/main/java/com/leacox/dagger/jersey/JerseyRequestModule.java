@@ -15,6 +15,19 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
+ * A Dagger module that provides request scoped JAX-RS and Jersey related bindings. In addition to the internal
+ * bindings the following bindings are provided:
+ * <ul>
+ * <li>{@link com.sun.jersey.api.core.HttpContext}</li>
+ * <li>{@link javax.ws.rs.core.UriInfo}</li>
+ * <li>{@link com.sun.jersey.api.core.ExtendedUriInfo}</li>
+ * <li>{@link com.sun.jersey.api.core.HttpRequestContext}</li>
+ * <li>{@link javax.ws.rs.core.HttpHeaders}</li>
+ * <li>{@link javax.ws.rs.core.Request}</li>
+ * <li>{@link javax.ws.rs.core.SecurityContext}</li>
+ * <li>{@link com.sun.jersey.api.core.HttpResponseContext}</li>
+ * </ul>
+ *
  * @author John Leacox
  */
 @Module(

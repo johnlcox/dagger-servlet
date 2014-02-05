@@ -1,8 +1,8 @@
 package com.leacox.dagger.jersey;
 
-import com.leacox.dagger.servlet.internal.ModuleClasses;
 import com.leacox.dagger.servlet.ServletModule;
-import com.sun.jersey.api.core.*;
+import com.leacox.dagger.servlet.internal.ModuleClasses;
+import com.sun.jersey.api.core.ResourceContext;
 import com.sun.jersey.core.util.FeaturesAndProperties;
 import com.sun.jersey.spi.MessageBodyWorkers;
 import com.sun.jersey.spi.container.ExceptionMapperContext;
@@ -14,6 +14,17 @@ import dagger.Provides;
 import javax.ws.rs.ext.Providers;
 
 /**
+ * A Dagger module that provides application wide JAX-RS and Jersey related bindings. In addition to the internal
+ * bindings the following bindings are provided:
+ * <ul>
+ * <li>{@link com.sun.jersey.spi.container.WebApplication}</li>
+ * <li>{@link javax.ws.rs.ext.Providers}</li>
+ * <li>{@link com.sun.jersey.core.util.FeaturesAndProperties}</li>
+ * <li>{@link com.sun.jersey.spi.MessageBodyWorkers}</li>
+ * <li>{@link com.sun.jersey.spi.container.ExceptionMapperContext}</li>
+ * <li>{@link com.sun.jersey.api.core.ResourceContext}</li>
+ * </ul>
+ *
  * @author John Leacox
  */
 @Module(

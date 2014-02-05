@@ -16,17 +16,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A Dagger-based {@link IoCComponentProviderFactory}.
+ *
  * @author John Leacox
  */
 public class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
     private static final Logger LOGGER = Logger.getLogger(DaggerComponentProviderFactory.class.getName());
 
     private final ObjectGraph objectGraph;
-    //private final Class<?>[] modules;
 
     public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Object[] modules) {
         this.objectGraph = objectGraph;
-        //this.modules = modules;
 
         for (Object module : modules) {
             Module annotation;

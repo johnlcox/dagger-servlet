@@ -14,6 +14,16 @@ import javax.servlet.ServletException;
 import java.util.Map;
 
 /**
+ * A {@code servlet} for deploying root resource classes with Dagger injection integration.
+ * <p/>
+ * This class must be registered in {@link com.leacox.dagger.servlet.DaggerServletContextListener#configureServlets()}.
+ * This class extends {@link ServletContainer} and initiates the {@link WebApplication} with a Dagger-based
+ * {@link com.sun.jersey.core.spi.component.ioc.IoCComponentProviderFactory}, so that instances of resource and provider
+ * classes managed by Dagger can be injected.
+ * <p/>
+ * Dagger-managed classes that are root resource classes or provider classes will be automatically registered with,
+ * so that they do not need to be configured in the web.xml.
+ *
  * @author John Leacox
  */
 @Singleton

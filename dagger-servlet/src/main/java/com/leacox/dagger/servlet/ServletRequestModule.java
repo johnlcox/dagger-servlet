@@ -19,9 +19,13 @@ package com.leacox.dagger.servlet;
 import dagger.Module;
 
 /**
- * A Dagger module that provides request scoped servlet related bindings for internal use by dagger-servlet as well as
- * bindings for {@link javax.servlet.ServletRequest}, {@link javax.servlet.ServletResponse}, and
- * {@link javax.servlet.http.HttpSession} for users of dagger-servlet.
+ * A Dagger module that provides request scoped servlet related bindings. In additional the internal bindings the
+ * following bindings are provided:
+ * <ul>
+ * <li>{@link javax.servlet.ServletRequest}</li>
+ * <li>{@link javax.servlet.ServletResponse}</li>
+ * <li>{@link javax.servlet.http.HttpSession}</li>
+ * </ul>
  *
  * @author John Leacox
  */
