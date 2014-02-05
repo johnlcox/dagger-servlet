@@ -17,15 +17,14 @@
 
 package com.leacox.dagger.servlet;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -37,15 +36,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import dagger.Lazy;
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -142,7 +141,6 @@ public class ContinuingRequestIntegrationTest {
 
     @Module(
             injects = {
-                    //ContinuingServlet.class,
                     OffRequestCallable.class
             },
             includes = {

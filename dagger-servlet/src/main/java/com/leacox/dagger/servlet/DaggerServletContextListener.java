@@ -34,7 +34,10 @@
 package com.leacox.dagger.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.*;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import dagger.ObjectGraph;
 import dagger.ScopingObjectGraph;
 
@@ -99,10 +102,8 @@ public abstract class DaggerServletContextListener implements ServletContextList
     private ObjectGraph objectGraph;
 
     private List<FilterDefinition> filterDefinitions = null;
-    //private final List<FilterInstanceBindingEntry> filterInstanceEntries = Lists.newArrayList();
 
     private List<ServletDefinition> servletDefinitions = null;
-    //private final List<ServletInstanceBindingEntry> servletInstanceEntries = Lists.newArrayList();
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {

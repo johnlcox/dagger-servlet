@@ -55,11 +55,6 @@ class InternalServletModule {
         return new ManagedServletPipeline(servletDefinitions);
     }
 
-//    @Provides
-//    DaggerFilter provideDaggerFilter(FilterPipeline injectedPipeline) {
-//        return new DaggerFilter(injectedPipeline);
-//    }
-
     @Provides
     @Singleton
     ObjectGraph provideObjectGraph(ObjectGraphProvider objectGraphProvider) {

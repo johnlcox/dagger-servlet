@@ -17,8 +17,8 @@
 package dagger;
 
 import com.google.common.collect.Maps;
-import com.leacox.dagger.servlet.RequestScoped;
 import com.leacox.dagger.servlet.DaggerFilter;
+import com.leacox.dagger.servlet.RequestScoped;
 import com.leacox.dagger.servlet.ServletScopes;
 import com.leacox.dagger.servlet.SessionScoped;
 import com.leacox.dagger.servlet.scope.Scope;
@@ -63,13 +63,10 @@ public class ScopingObjectGraph extends ObjectGraph {
             return objectGraph.get(type);
         }
 
-//        ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class)).plus(
-//                scopedModules.get(RequestScoped.class));
-
         if (isRequestScoped(type)) {
-            return requestScope.scope(type, objectGraph, scopedModules.get(RequestScoped.class)); //scopedGraph);
+            return requestScope.scope(type, objectGraph, scopedModules.get(RequestScoped.class));
         } else if (isSessionScoped(type)) {
-            return sessionScope.scope(type, objectGraph, scopedModules.get(SessionScoped.class)); //scopedGraph);
+            return sessionScope.scope(type, objectGraph, scopedModules.get(SessionScoped.class));
         } else {
             return objectGraph.get(type);
         }
@@ -78,20 +75,14 @@ public class ScopingObjectGraph extends ObjectGraph {
     @Override
     public <T> T inject(T instance) {
         HttpServletRequest request = DaggerFilter.getRequest();
-
         if (request == null && !ServletScopes.isNonHttpRequestScope()) {
             return objectGraph.inject(instance);
         }
 
-        //synchronized (request) {
         if (isRequestScoped(instance.getClass())) {
-            //ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(RequestScoped.class));
-            //return scopedGraph.inject(instance);
-            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(RequestScoped.class)); //scopedGraph);
+            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(RequestScoped.class));
         } else if (isSessionScoped(instance.getClass())) {
-            //ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class));
-            //return scopedGraph.inject(instance);
-            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(SessionScoped.class)); //scopedGraph);
+            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(SessionScoped.class));
         } else {
             return objectGraph.inject(instance);
         }

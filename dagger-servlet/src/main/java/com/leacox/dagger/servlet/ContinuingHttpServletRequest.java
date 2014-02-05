@@ -19,13 +19,13 @@ package com.leacox.dagger.servlet;
 import com.google.common.collect.Maps;
 import com.leacox.dagger.servlet.scope.OutOfScopeException;
 
-import java.io.IOException;
-import java.util.Map;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * A wrapper for requests that makes requests immutable, taking a snapshot

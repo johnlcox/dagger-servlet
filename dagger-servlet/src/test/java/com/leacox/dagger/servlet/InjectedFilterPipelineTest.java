@@ -65,9 +65,6 @@ public class InjectedFilterPipelineTest {
     private ObjectGraph objectGraph1;
     private ObjectGraph objectGraph2;
 
-//    private Injector injector1;
-//    private Injector injector2;
-
     @Module(
             injects = {
                     TestFilter.class,

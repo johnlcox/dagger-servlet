@@ -16,14 +16,13 @@
 
 package com.leacox.dagger.servlet;
 
-import java.io.IOException;
-
 import javax.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.io.IOException;
 
 /**
  * This default pipeline simply dispatches to web.xml's servlet pipeline.

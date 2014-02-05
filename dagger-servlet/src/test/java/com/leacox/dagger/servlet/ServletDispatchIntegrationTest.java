@@ -343,7 +343,6 @@ public class ServletDispatchIntegrationTest {
 
         ServletContext servletContext = createMock("blah", ServletContext.class);
         contextListener.contextInitialized(new ServletContextEvent(servletContext));
-        //ObjectGraph objectGraph = contextListener.getObjectGraph();
 
         final HttpServletRequest requestMock = createNiceMock(HttpServletRequest.class);
         HttpServletResponse responseMock = createMock(HttpServletResponse.class);

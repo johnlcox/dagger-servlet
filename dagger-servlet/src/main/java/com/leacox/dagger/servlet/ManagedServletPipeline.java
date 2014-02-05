@@ -21,8 +21,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import dagger.ObjectGraph;
 
-import java.io.IOException;
-import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.RequestDispatcher;
@@ -33,6 +31,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.IOException;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
 
