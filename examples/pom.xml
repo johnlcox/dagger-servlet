@@ -7,9 +7,10 @@
     <parent>
         <artifactId>dagger-servlet-parent</artifactId>
         <groupId>com.leacox.dagger</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>com.leacox.dagger.example</groupId>
     <artifactId>dagger-servlet-examples-parent</artifactId>
     <packaging>pom</packaging>
     <name>Examples</name>
@@ -18,6 +19,26 @@
         <module>jersey-simple</module>
         <module>jersey-simple-guice</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-servlet</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey.contribs</groupId>
+                <artifactId>jersey-guice</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>
