@@ -18,11 +18,6 @@ public class SimpleContextListener extends DaggerServletContextListener {
     }
 
     @Override
-    protected Class<?>[] getSessionScopedModules() {
-        return new Class<?>[0];
-    }
-
-    @Override
     protected void configureServlets() {
         serve("/*").with(DaggerContainer.class);
     }

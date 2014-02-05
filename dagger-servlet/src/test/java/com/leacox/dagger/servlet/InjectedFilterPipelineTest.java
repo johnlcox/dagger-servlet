@@ -92,11 +92,6 @@ public class InjectedFilterPipelineTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 filter("/*").through(TestFilter.class);
                 filter("*.html").through(TestFilter.class);
@@ -123,11 +118,6 @@ public class InjectedFilterPipelineTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{ServletRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
             }
 
             @Override

@@ -82,11 +82,6 @@ public class EdslTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 filter("/*").through(DummyFilterImpl.class);
                 filter("*.html").through(DummyFilterImpl.class);

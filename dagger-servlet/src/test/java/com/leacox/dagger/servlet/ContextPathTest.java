@@ -93,11 +93,6 @@ public class ContextPathTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 serve("/foo/*").with(FooTestServlet.class);
                 serve("/bar/*").with(BarTestServlet.class);

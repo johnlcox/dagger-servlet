@@ -86,11 +86,6 @@ public class MultipleServletObjectGraphsTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 // This creates a ManagedFilterPipeline internally...
                 serve("/*").with(DummyServlet.class);
@@ -114,11 +109,6 @@ public class MultipleServletObjectGraphsTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{ServletRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
             }
 
             @Override

@@ -33,7 +33,6 @@
 package com.leacox.dagger.servlet;
 
 import dagger.Module;
-import org.junit.Ignore;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -95,11 +94,6 @@ public class InvalidScopeBindingTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{};
-            }
-
-            @Override
             protected void configureServlets() {
                 serve("/*").with(MyNonSingletonServlet.class);
             }
@@ -138,11 +132,6 @@ public class InvalidScopeBindingTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{};
-            }
-
-            @Override
             protected void configureServlets() {
                 filter("/*").through(MyNonSingletonFilter.class);
             }
@@ -173,11 +162,6 @@ public class InvalidScopeBindingTest {
 
             @Override
             protected Class<?>[] getRequestScopedModules() {
-                return new Class<?>[]{};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
                 return new Class<?>[]{};
             }
 

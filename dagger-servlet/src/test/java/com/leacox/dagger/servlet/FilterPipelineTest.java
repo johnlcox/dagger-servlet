@@ -71,11 +71,6 @@ public class FilterPipelineTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 filter("/*").through(TestFilter.class);
                 filter("*.html").through(TestFilter.class);

@@ -44,7 +44,6 @@ import dagger.ObjectGraph;
 import dagger.Provides;
 import dagger.ScopingObjectGraph;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import static org.easymock.EasyMock.createMock;
@@ -138,11 +137,6 @@ public class ServletTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{TestSessionModule.class};
-            }
-
-            @Override
             protected void configureServlets() {
             }
         };
@@ -220,11 +214,6 @@ public class ServletTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{TestRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{TestSessionModule.class};
             }
 
             @Override
@@ -326,11 +315,6 @@ public class ServletTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{TestSessionModule.class};
-            }
-
-            @Override
             protected void configureServlets() {
             }
         };
@@ -410,11 +394,6 @@ public class ServletTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{TestRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{TestSessionModule.class};
             }
 
             @Override
@@ -523,11 +502,6 @@ public class ServletTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{TestRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[]{TestSessionModule.class};
             }
 
             @Override

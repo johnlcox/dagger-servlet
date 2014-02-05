@@ -57,14 +57,12 @@ import static com.google.common.base.Preconditions.checkState;
  * Configures injection using dagger and configures filters and servlets.
  * <p/>
  * This class should be subclasses to register filters and servlets in the {@link #configureServlets()} method. Your
- * dagger modules should be added to the {@link #getBaseModules()}, {@link #getRequestScopedModules()}, and
- * {@link #getSessionScopedModules()} methods.
+ * dagger modules should be added to the {@link #getBaseModules()} and {@link #getRequestScopedModules()} methods.
  * <p/>
  * Your dagger modules should be split into separate classes by scope like so:
  * <ul>
  * <li>Application Wide - Put application wide modules in {@link #getBaseModules()}</li>
  * <li>Request Scoped - Put request scoped modules in {@link #getRequestScopedModules()}</li>
- * <li>Session Scoped - Put session scoped modules in {@link #getSessionScopedModules()}</li>
  * </ul>
  * <p/>
  * The following modules are included by dagger-servlet to provide some standard bindings:
@@ -116,15 +114,15 @@ public abstract class DaggerServletContextListener implements ServletContextList
 
             ObjectGraph unscopedGraph = ObjectGraph.create(getBaseModules());
             ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(unscopedGraph)
-                    .addScopedModules(RequestScoped.class, getRequestScopedModules())
-                    .addScopedModules(SessionScoped.class, getSessionScopedModules());
+                    .addScopedModules(RequestScoped.class, getRequestScopedModules());
+            //.addScopedModules(SessionScoped.class, getSessionScopedModules());
 
             scopingObjectGraph.get(ServletContextProvider.class).set(servletContext);
             scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);
             Iterable<Object> fullModules = Iterables.concat(
                     Arrays.asList(getBaseModules()),
-                    Arrays.asList(getRequestScopedModules()),
-                    Arrays.asList(getSessionScopedModules()));
+                    Arrays.asList(getRequestScopedModules()));
+            //Arrays.asList(getSessionScopedModules()));
             scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Object.class));
 
             configureServlets();
@@ -183,11 +181,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
      * should be included.
      */
     protected abstract Object[] getRequestScopedModules();
-
-    /**
-     * Override this method to return an array of your session scoped Dagger modules.
-     */
-    protected abstract Object[] getSessionScopedModules();
 
     // Can't do dynamic bindings with dagger, so require the context listener implementation to setup any
     // filters/servlets that should be injected and configure the filter/servlet definitions here for the pipelines.

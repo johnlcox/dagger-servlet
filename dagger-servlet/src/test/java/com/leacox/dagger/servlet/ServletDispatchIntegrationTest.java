@@ -36,7 +36,6 @@ import javax.servlet.http.HttpSession;
 
 import dagger.Module;
 import dagger.ObjectGraph;
-import dagger.Provides;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -100,11 +99,6 @@ public class ServletDispatchIntegrationTest {
             }
 
             @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
-            }
-
-            @Override
             protected void configureServlets() {
                 serve("/*").with(TestServlet.class);
 
@@ -160,11 +154,6 @@ public class ServletDispatchIntegrationTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{ServletRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
             }
 
             @Override
@@ -327,11 +316,6 @@ public class ServletDispatchIntegrationTest {
             @Override
             protected Class<?>[] getRequestScopedModules() {
                 return new Class<?>[]{ServletRequestModule.class};
-            }
-
-            @Override
-            protected Class<?>[] getSessionScopedModules() {
-                return new Class<?>[0];
             }
 
             @Override

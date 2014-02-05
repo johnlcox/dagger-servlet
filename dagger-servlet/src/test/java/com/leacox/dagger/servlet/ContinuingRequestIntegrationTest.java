@@ -187,11 +187,6 @@ public class ContinuingRequestIntegrationTest {
             }
 
             @Override
-            protected Object[] getSessionScopedModules() {
-                return new Object[]{};
-            }
-
-            @Override
             protected void configureServlets() {
                 serve("/*").with(ContinuingServlet.class);
             }
@@ -245,11 +240,6 @@ public class ContinuingRequestIntegrationTest {
             @Override
             protected Object[] getRequestScopedModules() {
                 return new Object[]{new TestRequestModule()};
-            }
-
-            @Override
-            protected Object[] getSessionScopedModules() {
-                return new Object[]{};
             }
 
             @Override
