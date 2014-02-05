@@ -17,11 +17,11 @@
 
 package com.leacox.dagger.servlet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.leacox.dagger.servlet.scope.Scope;
-import dagger.Lazy;
 import dagger.ObjectGraph;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +33,8 @@ import java.util.concurrent.Callable;
  * @author John Leacox
  */
 public class ServletScopes {
+    private static final String SCOPED_OBJECT_GRAPH_KEY = DaggerKey.get(ObjectGraph.class).toString();
+
     private ServletScopes() {}
 
     /**
@@ -42,7 +44,8 @@ public class ServletScopes {
         INSTANCE
     }
 
-    private static class DaggerKey {
+    @VisibleForTesting
+    static class DaggerKey {
         private final Class<?> type;
 
         private DaggerKey(Class<?> type) {
@@ -78,60 +81,134 @@ public class ServletScopes {
      */
     public static final Scope REQUEST = new Scope() {
         @Override
-        public <T> Lazy<T> scope(final Class<T> type, final ObjectGraph creator) {
+        public <T> T scope(final Class<T> type, ObjectGraph unscopedGraph, final Object[] scopedModules) {//final ObjectGraph creator) {
             final String name = DaggerKey.get(type).toString(); //"DaggerKey[type=" + type + "]";
-            return new Lazy<T>() {
-                @Override
-                public T get() {
-                    // Check if the alternate request scope should be used, if no HTTP
-                    // request is in progress.
-                    if (null == DaggerFilter.localContext.get()) {
 
-                        // NOTE(dhanji): We don't need to synchronize on the scope map
-                        // unlike the HTTP request because we're the only ones who have
-                        // a reference to it, and it is only available via a threadlocal.
-                        Map<String, Object> scopeMap = requestScopeContext.get();
-                        if (null != scopeMap) {
-                            @SuppressWarnings("unchecked")
-                            T t = (T) scopeMap.get(name);
+            // Check if the alternate request scope should be used, if no HTTP
+            // request is in progress.
+            if (null == DaggerFilter.localContext.get()) {
 
-                            // Accounts for @Nullable providers.
-                            if (NullObject.INSTANCE == t) {
-                                return null;
-                            }
+                // NOTE(dhanji): We don't need to synchronize on the scope map
+                // unlike the HTTP request because we're the only ones who have
+                // a reference to it, and it is only available via a threadlocal.
+                Map<String, Object> scopeMap = requestScopeContext.get();
+                if (null != scopeMap) {
+                    @SuppressWarnings("unchecked")
+                    T t = (T) scopeMap.get(name);
 
-                            if (t == null) {
-                                t = creator.get(type);
-                                // Store a sentinel for provider-given null values.
-                                scopeMap.put(name, t != null ? t : NullObject.INSTANCE);
-                            }
-
-                            return t;
-                        } // else: fall into normal HTTP request scope and out of scope
-                        // exception is thrown.
+                    // Accounts for @Nullable providers.
+                    if (NullObject.INSTANCE == t) {
+                        return null;
                     }
 
-                    HttpServletRequest request = DaggerFilter.getRequest();
-
-                    synchronized (request) {
-                        Object obj = request.getAttribute(name);
-                        if (NullObject.INSTANCE == obj) {
-                            return null;
-                        }
+                    if (t == null) {
                         @SuppressWarnings("unchecked")
-                        T t = (T) obj;
-                        if (t == null) {
-                            t = creator.get(type);
-                            request.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
+                        ObjectGraph scopedObjectGraph = (ObjectGraph) scopeMap.get(SCOPED_OBJECT_GRAPH_KEY);
+                        if (scopedObjectGraph == null) {
+                            scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                            scopeMap.put(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
                         }
-                        return t;
-                    }
-                }
 
-                public String toString() {
-                    return String.format("%s[%s]", creator, REQUEST);
+                        t = scopedObjectGraph.get(type);
+                        // Store a sentinel for provider-given null values.
+                        scopeMap.put(name, t != null ? t : NullObject.INSTANCE);
+                    }
+
+                    return t;
+                } // else: fall into normal HTTP request scope and out of scope
+                // exception is thrown.
+            }
+
+            HttpServletRequest request = DaggerFilter.getRequest();
+
+            synchronized (request) {
+                Object obj = request.getAttribute(name);
+                if (NullObject.INSTANCE == obj) {
+                    return null;
                 }
-            };
+                @SuppressWarnings("unchecked")
+                T t = (T) obj;
+                if (t == null) {
+                    @SuppressWarnings("unchecked")
+                    ObjectGraph scopedObjectGraph = (ObjectGraph) request.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
+                    if (scopedObjectGraph == null) {
+                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                        request.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
+                    }
+
+                    t = scopedObjectGraph.get(type);
+                    request.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
+                }
+                return t;
+            }
+        }
+
+        @Override
+        public <T> T scopeInstance(T value, ObjectGraph unscopedGraph, final Object[] scopedModules) {//ObjectGraph objectGraph) {
+            Class<?> type = value.getClass();
+            final String name = DaggerKey.get(type).toString();
+
+            // Check if the alternate request scope should be used, if no HTTP
+            // request is in progress.
+            if (null == DaggerFilter.localContext.get()) {
+
+                // NOTE(dhanji): We don't need to synchronize on the scope map
+                // unlike the HTTP request because we're the only ones who have
+                // a reference to it, and it is only available via a threadlocal.
+                Map<String, Object> scopeMap = requestScopeContext.get();
+                if (null != scopeMap) {
+                    @SuppressWarnings("unchecked")
+                    T t = (T) scopeMap.get(name);
+
+                    // Accounts for @Nullable providers.
+                    if (NullObject.INSTANCE == t) {
+                        return null;
+                    }
+
+                    if (t == null) {
+                        @SuppressWarnings("unchecked")
+                        ObjectGraph scopedObjectGraph = (ObjectGraph) scopeMap.get(SCOPED_OBJECT_GRAPH_KEY);
+                        if (scopedObjectGraph == null) {
+                            scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                            scopeMap.put(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
+                        }
+
+                        t = scopedObjectGraph.inject(value); //.get(type);
+                        // Store a sentinel for provider-given null values.
+                        scopeMap.put(name, t != null ? t : NullObject.INSTANCE);
+                    }
+
+                    return t;
+                } // else: fall into normal HTTP request scope and out of scope
+                // exception is thrown.
+            }
+
+            HttpServletRequest request = DaggerFilter.getRequest();
+
+            synchronized (request) {
+                Object obj = request.getAttribute(name);
+                if (NullObject.INSTANCE == obj) {
+                    return null;
+                }
+                @SuppressWarnings("unchecked")
+                T t = (T) obj;
+                if (t == null) {
+                    @SuppressWarnings("unchecked")
+                    ObjectGraph scopedObjectGraph = (ObjectGraph) request.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
+                    if (scopedObjectGraph == null) {
+                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                        request.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
+                    }
+
+                    t = scopedObjectGraph.inject(value); //.get(type);
+                    request.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
+                }
+                return t;
+            }
+        }
+
+        public String toString() {
+            return "ServletScopes.REQUEST";
         }
     };
 
@@ -140,31 +217,57 @@ public class ServletScopes {
      */
     public static final Scope SESSION = new Scope() {
         @Override
-        public <T> Lazy<T> scope(final Class<T> type, final ObjectGraph creator) {
-            final String name = DaggerKey.get(type).toString(); //"DaggerKey[type=" + type + "]";
-            return new Lazy<T>() {
-                @Override
-                public T get() {
-                    HttpSession session = DaggerFilter.getRequest().getSession();
-                    synchronized (session) {
-                        Object obj = session.getAttribute(name);
-                        if (NullObject.INSTANCE == obj) {
-                            return null;
-                        }
-                        @SuppressWarnings("unchecked")
-                        T t = (T) obj;
-                        if (t == null) {
-                            t = creator.get(type);
-                            session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
-                        }
-                        return t;
-                    }
-                }
+        public <T> T scope(final Class<T> type, ObjectGraph unscopedGraph, final Object[] scopedModules) {//final ObjectGraph creator) {
+            final String name = DaggerKey.get(type).toString();
 
-                public String toString() {
-                    return String.format("%s[%s]", creator, SESSION);
+            HttpSession session = DaggerFilter.getRequest().getSession();
+            synchronized (session) {
+                Object obj = session.getAttribute(name);
+                if (NullObject.INSTANCE == obj) {
+                    return null;
                 }
-            };
+                @SuppressWarnings("unchecked")
+                T t = (T) obj;
+                if (t == null) {
+                    @SuppressWarnings("unchecked")
+                    ObjectGraph scopedObjectGraph = (ObjectGraph) session.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
+                    if (scopedObjectGraph == null) {
+                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                        session.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
+                    }
+
+                    t = scopedObjectGraph.get(type);
+                    session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
+                }
+                return t;
+            }
+        }
+
+        @Override
+        public <T> T scopeInstance(T value, ObjectGraph unscopedGraph, final Object[] scopedModules) {//ObjectGraph objectGraph) {
+            Class<?> type = value.getClass();
+            final String name = DaggerKey.get(type).toString();
+            HttpSession session = DaggerFilter.getRequest().getSession();
+            synchronized (session) {
+                Object obj = session.getAttribute(name);
+                if (NullObject.INSTANCE == obj) {
+                    return null;
+                }
+                @SuppressWarnings("unchecked")
+                T t = (T) obj;
+                if (t == null) {
+                    @SuppressWarnings("unchecked")
+                    ObjectGraph scopedObjectGraph = (ObjectGraph) session.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
+                    if (scopedObjectGraph == null) {
+                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
+                        session.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
+                    }
+
+                    t = scopedObjectGraph.inject(value); //.get(type);
+                    session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
+                }
+                return t;
+            }
         }
 
         public String toString() {
@@ -203,7 +306,6 @@ public class ServletScopes {
                                                   final Map<Class<?>, Object> seedMap) {
         Preconditions.checkArgument(null != seedMap,
                 "Seed map cannot be null, try passing in Collections.emptyMap() instead.");
-
         // Snapshot the seed map and add all the instances to our continuing HTTP request.
         final ContinuingHttpServletRequest continuingRequest =
                 new ContinuingHttpServletRequest(DaggerFilter.getRequest());
@@ -234,6 +336,10 @@ public class ServletScopes {
                 }
             }
         };
+    }
+
+    public static boolean isNonHttpRequestScope() {
+        return requestScopeContext.get() != null;
     }
 
     /**
@@ -301,7 +407,7 @@ public class ServletScopes {
 
         if (!type.isInstance(object)) {
             throw new IllegalArgumentException("Value[" + object + "] of type["
-                    + object.getClass().getName() + "] is not compatible with type[" + type + "]");
+                    + object.getClass().getName() + "] is not compatible with key[" + DaggerKey.get(type) + "]");
         }
 
         return object;

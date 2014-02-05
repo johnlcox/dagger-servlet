@@ -208,7 +208,7 @@ public class ContinuingRequestIntegrationTest {
 
         DaggerFilter daggerFilter = objectGraph.get(DaggerFilter.class);
 
-        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletRequest request = createNiceMock(HttpServletRequest.class);
 
         expect(request.getRequestURI()).andReturn("/");
         expect(request.getContextPath())
@@ -269,7 +269,7 @@ public class ContinuingRequestIntegrationTest {
 
         DaggerFilter daggerFilter = objectGraph.get(DaggerFilter.class);
 
-        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletRequest request = createNiceMock(HttpServletRequest.class);
 
         expect(request.getRequestURI()).andReturn("/");
         expect(request.getContextPath())

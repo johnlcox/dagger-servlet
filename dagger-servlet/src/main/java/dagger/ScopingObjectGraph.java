@@ -59,19 +59,19 @@ public class ScopingObjectGraph extends ObjectGraph {
     @Override
     public <T> T get(Class<T> type) {
         HttpServletRequest request = DaggerFilter.getRequest();
-        if (request == null) {
+        if (request == null && !ServletScopes.isNonHttpRequestScope()) {
             return objectGraph.get(type);
         }
 
-        ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class)).plus(
-                scopedModules.get(RequestScoped.class));
+//        ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class)).plus(
+//                scopedModules.get(RequestScoped.class));
 
         if (isRequestScoped(type)) {
-            return requestScope.scope(type, scopedGraph).get();
+            return requestScope.scope(type, objectGraph, scopedModules.get(RequestScoped.class)); //scopedGraph);
         } else if (isSessionScoped(type)) {
-            return sessionScope.scope(type, scopedGraph).get();
+            return sessionScope.scope(type, objectGraph, scopedModules.get(SessionScoped.class)); //scopedGraph);
         } else {
-            return scopedGraph.get(type);
+            return objectGraph.get(type);
         }
     }
 
@@ -79,21 +79,23 @@ public class ScopingObjectGraph extends ObjectGraph {
     public <T> T inject(T instance) {
         HttpServletRequest request = DaggerFilter.getRequest();
 
-        if (request == null) {
+        if (request == null && !ServletScopes.isNonHttpRequestScope()) {
             return objectGraph.inject(instance);
         }
 
-        synchronized (request) {
-            if (isRequestScoped(instance.getClass())) {
-                ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(RequestScoped.class));
-                return scopedGraph.inject(instance);
-            } else if (isSessionScoped(instance.getClass())) {
-                ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class));
-                return scopedGraph.inject(instance);
-            } else {
-                return objectGraph.inject(instance);
-            }
+        //synchronized (request) {
+        if (isRequestScoped(instance.getClass())) {
+            //ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(RequestScoped.class));
+            //return scopedGraph.inject(instance);
+            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(RequestScoped.class)); //scopedGraph);
+        } else if (isSessionScoped(instance.getClass())) {
+            //ObjectGraph scopedGraph = objectGraph.plus(scopedModules.get(SessionScoped.class));
+            //return scopedGraph.inject(instance);
+            return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(SessionScoped.class)); //scopedGraph);
+        } else {
+            return objectGraph.inject(instance);
         }
+        //}
     }
 
     @Override
