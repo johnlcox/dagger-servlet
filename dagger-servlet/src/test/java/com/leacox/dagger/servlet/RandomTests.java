@@ -1,10 +1,16 @@
 package com.leacox.dagger.servlet;
 
 import dagger.Module;
+import dagger.ObjectGraph;
 import dagger.Provides;
+import org.testng.annotations.Test;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author John Leacox
@@ -149,4 +155,48 @@ public class RandomTests {
         }
 
     }
+
+//    @Module(
+//            injects = ObjectOne.class,
+//            complete = false
+//    )
+//    class ModuleOne {
+//        @Provides
+//        ObjectOne provideObjectOne() {
+//            return new ObjectOne();
+//        }
+//    }
+//
+//    @Module(
+//            injects = ObjectTwo.class
+//    )
+//    class ModuleTwo {
+//        @Provides
+//        @Singleton
+//        @Named("two")
+//        String provideString() {
+//            return "hi";
+//        }
+//    }
+//
+//    static class ObjectOne {
+//        @Inject
+//        ObjectTwo objectTwo;
+//    }
+//
+//    static class ObjectTwo {
+//        @Inject
+//        @Named("two")
+//        String myString;
+//    }
+//
+//    @Test
+//    public void testPlus() {
+//        ObjectGraph objectGraph = ObjectGraph.create(new ModuleOne());
+//        ObjectOne one = objectGraph.get(ObjectOne.class);
+//        ObjectGraph plussedGraph = objectGraph.plus(new ModuleTwo());
+//        plussedGraph.inject(one);
+//        System.out.println(one.objectTwo.myString);
+//    }
+
 }

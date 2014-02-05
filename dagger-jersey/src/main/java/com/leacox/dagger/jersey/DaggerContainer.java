@@ -19,12 +19,12 @@ import java.util.Map;
 @Singleton
 public class DaggerContainer extends ServletContainer {
     private final ObjectGraph objectGraph;
-    private final Class<?>[] modules;
+    private final Object[] modules;
 
     private WebApplication webApplication;
 
     @Inject
-    public DaggerContainer(ObjectGraph objectGraph, @ModuleClasses Class<?>[] modules) {
+    public DaggerContainer(ObjectGraph objectGraph, @ModuleClasses Object[] modules) {
         this.objectGraph = objectGraph;
         this.modules = modules;
     }

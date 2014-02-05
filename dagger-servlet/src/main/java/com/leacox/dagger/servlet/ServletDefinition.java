@@ -83,6 +83,7 @@ public class ServletDefinition {
         HttpServlet httpServlet;
         if (servletInstance == null) {
             httpServlet = objectGraph.get(servletClass);
+            //objectGraph.inject(httpServlet);
         } else {
             httpServlet = servletInstance;
         }

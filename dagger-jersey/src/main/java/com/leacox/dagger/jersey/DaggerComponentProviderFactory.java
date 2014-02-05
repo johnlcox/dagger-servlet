@@ -24,12 +24,17 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     private final ObjectGraph objectGraph;
     //private final Class<?>[] modules;
 
-    public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Class<?>[] modules) {
+    public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Object[] modules) {
         this.objectGraph = objectGraph;
         //this.modules = modules;
 
-        for (Class<?> module : modules) {
-            Module annotation = module.getAnnotation(Module.class);
+        for (Object module : modules) {
+            Module annotation;
+            if (module instanceof Class<?>) {
+                annotation = ((Class<?>) module).getAnnotation(Module.class);
+            } else {
+                annotation = module.getClass().getAnnotation(Module.class);
+            }
             register(config, annotation);
         }
     }

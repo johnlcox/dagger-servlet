@@ -113,18 +113,18 @@ public abstract class DaggerServletContextListener implements ServletContextList
         try {
             ServletContext servletContext = servletContextEvent.getServletContext();
 
-            ObjectGraph unscopedGraph = ObjectGraph.create((Object[]) getBaseModules());
+            ObjectGraph unscopedGraph = ObjectGraph.create(getBaseModules());
             ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(unscopedGraph)
-                    .addScopedModules(RequestScoped.class, (Class<?>[]) getRequestScopedModules())
-                    .addScopedModules(SessionScoped.class, (Class<?>[]) getSessionScopedModules());
+                    .addScopedModules(RequestScoped.class, getRequestScopedModules())
+                    .addScopedModules(SessionScoped.class, getSessionScopedModules());
 
             scopingObjectGraph.get(ServletContextProvider.class).set(servletContext);
             scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);
-            Iterable<Class<?>> fullModules = Iterables.concat(
+            Iterable<Object> fullModules = Iterables.concat(
                     Arrays.asList(getBaseModules()),
                     Arrays.asList(getRequestScopedModules()),
                     Arrays.asList(getSessionScopedModules()));
-            scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Class.class));
+            scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Object.class));
 
             configureServlets();
 
@@ -175,18 +175,18 @@ public abstract class DaggerServletContextListener implements ServletContextList
      * Override this method to return an array of your application level Dagger modules. {@link ServletModule} should
      * be included.
      */
-    protected abstract Class<?>[] getBaseModules();
+    protected abstract Object[] getBaseModules();
 
     /**
      * Override this method to return an array of your request scoped Dagger modules. {@link ServletRequestModule}
      * should be included.
      */
-    protected abstract Class<?>[] getRequestScopedModules();
+    protected abstract Object[] getRequestScopedModules();
 
     /**
      * Override this method to return an array of your session scoped Dagger modules.
      */
-    protected abstract Class<?>[] getSessionScopedModules();
+    protected abstract Object[] getSessionScopedModules();
 
     // Can't do dynamic bindings with dagger, so require the context listener implementation to setup any
     // filters/servlets that should be injected and configure the filter/servlet definitions here for the pipelines.

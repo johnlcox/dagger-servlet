@@ -69,7 +69,7 @@ class InternalServletModule {
     @Provides
     @Singleton
     @ModuleClasses
-    Class<?>[] provideFullModules(FullModulesProvider fullModulesProvider) {
+    Object[] provideFullModules(FullModulesProvider fullModulesProvider) {
         return fullModulesProvider.get();
     }
 
@@ -104,19 +104,19 @@ class InternalServletModule {
     }
 
     @Singleton
-    static class FullModulesProvider implements Provider<Class<?>[]> {
-        private Class<?>[] modules;
+    static class FullModulesProvider implements Provider<Object[]> {
+        private Object[] modules;
 
         @Inject
         FullModulesProvider() {
         }
 
-        void set(Class<?>[] modules) {
+        void set(Object[] modules) {
             this.modules = modules;
         }
 
         @Override
-        public Class<?>[] get() {
+        public Object[] get() {
             return modules;
         }
     }

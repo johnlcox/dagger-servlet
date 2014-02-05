@@ -22,6 +22,8 @@ import dagger.Provides;
 import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -31,6 +33,8 @@ import javax.servlet.http.HttpSession;
         injects = {
                 ServletRequest.class,
                 ServletResponse.class,
+                HttpServletRequest.class,
+                HttpServletResponse.class,
                 HttpSession.class
         }
 )
@@ -46,6 +50,20 @@ class InternalServletRequestModule {
     //@RequestScoped
     @Singleton
     ServletResponse provideServletResponse() {
+        return DaggerFilter.getResponse();
+    }
+
+    @Provides
+    //@RequestScoped
+    @Singleton
+    HttpServletRequest provideHttpServletRequest() {
+        return DaggerFilter.getRequest();
+    }
+
+    @Provides
+    //@RequestScoped
+    @Singleton
+    HttpServletResponse provideHttpServletResponse() {
         return DaggerFilter.getResponse();
     }
 
