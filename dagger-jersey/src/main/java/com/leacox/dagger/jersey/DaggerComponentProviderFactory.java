@@ -1,5 +1,22 @@
+/**
+ * Copyright (C) 2014 John Leacox
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.leacox.dagger.jersey;
 
+import com.google.common.collect.Sets;
 import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.core.spi.component.ComponentContext;
 import com.sun.jersey.core.spi.component.ioc.IoCComponentProvider;
@@ -12,6 +29,7 @@ import dagger.ObjectGraph;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +42,7 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     private static final Logger LOGGER = Logger.getLogger(DaggerComponentProviderFactory.class.getName());
 
     private final ObjectGraph objectGraph;
+    private final Set<Class<?>> daggerInjectableClass = Sets.newHashSet();
 
     public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Object[] modules) {
         this.objectGraph = objectGraph;
@@ -72,6 +91,8 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
                 LOGGER.log(Level.INFO, "Registering {0} as a root resource class", clazz.getName());
                 config.getClasses().add(clazz);
             }
+
+            daggerInjectableClass.add(clazz);
         }
 
         for (Class<?> clazz : annotation.includes()) {
@@ -80,9 +101,11 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     }
 
     private boolean isDaggerConstructorInjected(Class<?> clazz) {
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (isInjectable(constructor)) {
-                return true;
+        if (daggerInjectableClass.contains(clazz)) {
+            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                if (isInjectable(constructor)) {
+                    return true;
+                }
             }
         }
 
@@ -90,9 +113,11 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     }
 
     private boolean isDaggerFieldInjected(Class<?> clazz) {
-        for (Field field : clazz.getDeclaredFields()) {
-            if (isInjectable(field)) {
-                return true;
+        if (daggerInjectableClass.contains(clazz)) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (isInjectable(field)) {
+                    return true;
+                }
             }
         }
 

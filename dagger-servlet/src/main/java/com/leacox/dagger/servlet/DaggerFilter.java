@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * <pre>
  *  &lt;filter&gt;
  *    &lt;filter-name&gt;daggerFilter&lt;/filter-name&gt;
- *    &lt;filter-class&gt;<b>com.leacox.dagger.servlet.DaggerFilterr</b>&lt;/filter-class&gt;
+ *    &lt;filter-class&gt;<b>com.leacox.dagger.servlet.DaggerFilter</b>&lt;/filter-class&gt;
  *  &lt;/filter&gt;
  *
  *  &lt;filter-mapping&gt;

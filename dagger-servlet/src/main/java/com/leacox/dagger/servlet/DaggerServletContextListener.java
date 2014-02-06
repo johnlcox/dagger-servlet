@@ -208,11 +208,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
      *      }
      *
      *      {@literal @}Override
-     *      protected Class<?>[] getSessionScopedModules() {
-     *          return new Class<?>[]{ MySessionModule.class };
-     *      }
-     *
-     *      {@literal @}Override
      *      protected void configureServlets() {
      *          serve("*.html").with(MyServlet.class);
      *      }
