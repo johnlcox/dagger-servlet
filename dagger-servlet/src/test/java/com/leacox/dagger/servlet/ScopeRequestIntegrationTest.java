@@ -94,7 +94,7 @@ public class ScopeRequestIntegrationTest {
         scopingGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingGraph);
 
         SomeObject someObject = new SomeObject(A_VALUE);
-        OffRequestCallable offRequestCallable = scopingGraph.get(OffRequestCallable.class); //new OffRequestCallable(scopingGraph);
+        OffRequestCallable offRequestCallable = scopingGraph.get(OffRequestCallable.class);
         executor.submit(ServletScopes.scopeRequest(offRequestCallable,
                 ImmutableMap.<Class<?>, Object>of(SomeObject.class, someObject,
                         ObjectGraph.class, scopedGraph))).get();

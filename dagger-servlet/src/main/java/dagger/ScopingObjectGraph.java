@@ -40,7 +40,6 @@ public class ScopingObjectGraph extends ObjectGraph {
     private final Map<Class<? extends Annotation>, Object[]> scopedModules;
 
     private final Scope requestScope = ServletScopes.REQUEST;
-    //private final Scope sessionScope = ServletScopes.SESSION;
 
     ScopingObjectGraph(ObjectGraph objectGraph, Map<Class<? extends Annotation>, Object[]> scopedModules) {
         this.objectGraph = objectGraph;
@@ -65,8 +64,6 @@ public class ScopingObjectGraph extends ObjectGraph {
 
         if (isRequestScoped(type)) {
             return requestScope.scope(type, objectGraph, scopedModules.get(RequestScoped.class));
-//        } else if (isSessionScoped(type)) {
-//            return sessionScope.scope(type, objectGraph, scopedModules.get(SessionScoped.class));
         } else {
             return objectGraph.get(type);
         }
@@ -81,12 +78,9 @@ public class ScopingObjectGraph extends ObjectGraph {
 
         if (isRequestScoped(instance.getClass())) {
             return requestScope.scopeInstance(instance, objectGraph, scopedModules.get(RequestScoped.class));
-//        } else if (isSessionScoped(instance.getClass())) {
-//            return sessionScope.scopeInstance(instance, objectGraph, scopedModules.get(SessionScoped.class));
         } else {
             return objectGraph.inject(instance);
         }
-        //}
     }
 
     @Override
@@ -129,24 +123,6 @@ public class ScopingObjectGraph extends ObjectGraph {
 
         return false;
     }
-
-//    private <T> boolean isSessionScoped(Class<T> type) {
-//        Object[] sessionScopedModules = scopedModules.get(SessionScoped.class);
-//        for (Object sessionScopedModule : sessionScopedModules) {
-//            Module module;
-//            if (sessionScopedModule instanceof Class<?>) {
-//                module = ((Class<?>) sessionScopedModule).getAnnotation(Module.class);
-//            } else {
-//                module = sessionScopedModule.getClass().getAnnotation(Module.class);
-//            }
-//
-//            if (arrayContains(module.injects(), type)) {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
 
     private static <T> boolean arrayContains(final T[] array, final T value) {
         for (final T element : array) {

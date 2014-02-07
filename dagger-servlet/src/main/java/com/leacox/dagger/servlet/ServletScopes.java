@@ -81,8 +81,8 @@ public class ServletScopes {
      */
     public static final Scope REQUEST = new Scope() {
         @Override
-        public <T> T scope(final Class<T> type, ObjectGraph unscopedGraph, final Object[] scopedModules) {//final ObjectGraph creator) {
-            final String name = DaggerKey.get(type).toString(); //"DaggerKey[type=" + type + "]";
+        public <T> T scope(final Class<T> type, ObjectGraph unscopedGraph, final Object[] scopedModules) {
+            final String name = DaggerKey.get(type).toString();
 
             // Check if the alternate request scope should be used, if no HTTP
             // request is in progress.
@@ -144,7 +144,7 @@ public class ServletScopes {
         }
 
         @Override
-        public <T> T scopeInstance(T value, ObjectGraph unscopedGraph, final Object[] scopedModules) {//ObjectGraph objectGraph) {
+        public <T> T scopeInstance(T value, ObjectGraph unscopedGraph, final Object[] scopedModules) {
             Class<?> type = value.getClass();
             final String name = DaggerKey.get(type).toString();
 
@@ -173,7 +173,7 @@ public class ServletScopes {
                             scopeMap.put(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
                         }
 
-                        t = scopedObjectGraph.inject(value); //.get(type);
+                        t = scopedObjectGraph.inject(value);
                         // Store a sentinel for provider-given null values.
                         scopeMap.put(name, t != null ? t : NullObject.INSTANCE);
                     }
@@ -200,7 +200,7 @@ public class ServletScopes {
                         request.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
                     }
 
-                    t = scopedObjectGraph.inject(value); //.get(type);
+                    t = scopedObjectGraph.inject(value);
                     request.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
                 }
                 return t;
@@ -211,69 +211,6 @@ public class ServletScopes {
             return "ServletScopes.REQUEST";
         }
     };
-
-    /**
-     * HTTP session scope.
-     */
-//    public static final Scope SESSION = new Scope() {
-//        @Override
-//        public <T> T scope(final Class<T> type, ObjectGraph unscopedGraph, final Object[] scopedModules) {//final ObjectGraph creator) {
-//            final String name = DaggerKey.get(type).toString();
-//
-//            HttpSession session = DaggerFilter.getRequest().getSession();
-//            synchronized (session) {
-//                Object obj = session.getAttribute(name);
-//                if (NullObject.INSTANCE == obj) {
-//                    return null;
-//                }
-//                @SuppressWarnings("unchecked")
-//                T t = (T) obj;
-//                if (t == null) {
-//                    @SuppressWarnings("unchecked")
-//                    ObjectGraph scopedObjectGraph = (ObjectGraph) session.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
-//                    if (scopedObjectGraph == null) {
-//                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
-//                        session.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
-//                    }
-//
-//                    t = scopedObjectGraph.get(type);
-//                    session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
-//                }
-//                return t;
-//            }
-//        }
-//
-//        @Override
-//        public <T> T scopeInstance(T value, ObjectGraph unscopedGraph, final Object[] scopedModules) {//ObjectGraph objectGraph) {
-//            Class<?> type = value.getClass();
-//            final String name = DaggerKey.get(type).toString();
-//            HttpSession session = DaggerFilter.getRequest().getSession();
-//            synchronized (session) {
-//                Object obj = session.getAttribute(name);
-//                if (NullObject.INSTANCE == obj) {
-//                    return null;
-//                }
-//                @SuppressWarnings("unchecked")
-//                T t = (T) obj;
-//                if (t == null) {
-//                    @SuppressWarnings("unchecked")
-//                    ObjectGraph scopedObjectGraph = (ObjectGraph) session.getAttribute(SCOPED_OBJECT_GRAPH_KEY);
-//                    if (scopedObjectGraph == null) {
-//                        scopedObjectGraph = unscopedGraph.plus(scopedModules);
-//                        session.setAttribute(SCOPED_OBJECT_GRAPH_KEY, scopedObjectGraph);
-//                    }
-//
-//                    t = scopedObjectGraph.inject(value); //.get(type);
-//                    session.setAttribute(name, (t != null) ? t : NullObject.INSTANCE);
-//                }
-//                return t;
-//            }
-//        }
-//
-//        public String toString() {
-//            return "ServletScopes.SESSION";
-//        }
-//    };
 
     /**
      * Wraps the given callable in a contextual callable that "continues" the

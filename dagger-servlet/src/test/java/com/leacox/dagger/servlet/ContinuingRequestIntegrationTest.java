@@ -222,7 +222,6 @@ public class ContinuingRequestIntegrationTest {
         executor.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals(PARAM_VALUE, staticCallable.value);
-        //assertEquals(PARAM_VALUE, objectGraph.get(OffRequestCallable.class).value);
         verify(request, filterConfig, filterChain);
     }
 

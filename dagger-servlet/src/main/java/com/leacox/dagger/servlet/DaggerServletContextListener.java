@@ -115,15 +115,14 @@ public abstract class DaggerServletContextListener implements ServletContextList
             ObjectGraph unscopedGraph = ObjectGraph.create(getBaseModules());
             ObjectGraph scopingObjectGraph = ScopingObjectGraph.create(unscopedGraph)
                     .addScopedModules(RequestScoped.class, getRequestScopedModules());
-            //.addScopedModules(SessionScoped.class, getSessionScopedModules());
 
             scopingObjectGraph.get(ServletContextProvider.class).set(servletContext);
             scopingObjectGraph.get(InternalServletModule.ObjectGraphProvider.class).set(scopingObjectGraph);
             Iterable<Object> fullModules = Iterables.concat(
                     Arrays.asList(getBaseModules()),
                     Arrays.asList(getRequestScopedModules()));
-            //Arrays.asList(getSessionScopedModules()));
-            scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class).set(Iterables.toArray(fullModules, Object.class));
+            scopingObjectGraph.get(InternalServletModule.FullModulesProvider.class)
+                    .set(Iterables.toArray(fullModules, Object.class));
 
             configureServlets();
 
@@ -181,11 +180,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
      * should be included.
      */
     protected abstract Object[] getRequestScopedModules();
-
-    // Can't do dynamic bindings with dagger, so require the context listener implementation to setup any
-    // filters/servlets that should be injected and configure the filter/servlet definitions here for the pipelines.
-
-    // TODO: Make sure documentation correctly matches what is supported. Are instances supported for filter/servlets? And varargs?
 
     /**
      * <h3>Servlet Mapping EDSL</h3>

@@ -52,56 +52,48 @@ import javax.ws.rs.core.UriInfo;
         library = true
 )
 public class JerseyRequestModule {
-    //@RequestScoped
     @Singleton
     @Provides
     public HttpContext provideHttpContext(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public UriInfo provideUriInfo(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getUriInfo();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public ExtendedUriInfo provideExtendedUriInfo(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getUriInfo();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public HttpRequestContext provideHttpRequestContext(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getRequest();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public HttpHeaders provideHttpHeaders(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getRequest();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public Request provideRequest(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getRequest();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public SecurityContext provideSecurityContext(WebApplication webApplication) {
         return webApplication.getThreadLocalHttpContext().getRequest();
     }
 
-    //@RequestScoped
     @Singleton
     @Provides
     public HttpResponseContext provideResponseContext(WebApplication webApplication) {
