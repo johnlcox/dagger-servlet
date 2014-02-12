@@ -25,6 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * @author John Leacox
@@ -68,5 +69,10 @@ class InternalServletRequestModule {
         return DaggerFilter.getRequest().getSession();
     }
 
-    // TODO: RequestParameters Map
+    @Provides
+    @Singleton
+    @RequestParameters
+    Map<String, String[]> provideRequestParameters() {
+        return DaggerFilter.getRequest().getParameterMap();
+    }
 }
