@@ -36,8 +36,9 @@ import java.util.Map;
                 ServletResponse.class,
                 HttpServletRequest.class,
                 HttpServletResponse.class,
-                HttpSession.class
-        }
+                HttpSession.class,
+        },
+        library = true
 )
 class InternalServletRequestModule {
     @Provides
