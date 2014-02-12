@@ -98,7 +98,7 @@ public class MultipleServletObjectGraphsTest {
         ServletContext contextOne = objectGraph1.get(ServletContext.class);
         assertNotNull(contextOne);
 
-        // Now simulate a second injector with a slightly different config.
+        // Now simulate a second object graph with a slightly different config.
         replay(fakeContextTwo);
         DaggerServletContextListener contextListener2 = new DaggerServletContextListener() {
             @Override

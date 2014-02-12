@@ -25,24 +25,24 @@ import com.sun.jersey.core.spi.component.ioc.IoCInstantiatedComponentProvider;
 import com.sun.jersey.core.spi.component.ioc.IoCProxiedComponentProvider;
 import dagger.Module;
 import dagger.ObjectGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A Dagger-based {@link IoCComponentProviderFactory}.
  *
  * @author John Leacox
  */
-public class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
-    private static final Logger LOGGER = Logger.getLogger(DaggerComponentProviderFactory.class.getName());
+class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DaggerComponentProviderFactory.class);
 
     private final ObjectGraph objectGraph;
-    private final Set<Class<?>> daggerInjectableClass = Sets.newHashSet();
+    private final Set<Class<?>> daggerInjectableClasses = Sets.newHashSet();
 
     public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Object[] modules) {
         this.objectGraph = objectGraph;
@@ -65,8 +65,8 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
 
     @Override
     public IoCComponentProvider getComponentProvider(ComponentContext componentContext, Class<?> clazz) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "getComponentProvider({0}", clazz.getName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getComponentProvider({0}", clazz.getName());
         }
 
         if (isDaggerConstructorInjected(clazz)) {
@@ -85,14 +85,14 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
 
         for (Class<?> clazz : annotation.injects()) {
             if (ResourceConfig.isProviderClass(clazz)) {
-                LOGGER.log(Level.INFO, "Registering {0} as a provider class", clazz.getName());
+                LOGGER.info("Registering {0} as a provider class", clazz.getName());
                 config.getClasses().add(clazz);
             } else if (ResourceConfig.isRootResourceClass(clazz)) {
-                LOGGER.log(Level.INFO, "Registering {0} as a root resource class", clazz.getName());
+                LOGGER.info("Registering {0} as a root resource class", clazz.getName());
                 config.getClasses().add(clazz);
             }
 
-            daggerInjectableClass.add(clazz);
+            daggerInjectableClasses.add(clazz);
         }
 
         for (Class<?> clazz : annotation.includes()) {
@@ -101,7 +101,7 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     }
 
     private boolean isDaggerConstructorInjected(Class<?> clazz) {
-        if (daggerInjectableClass.contains(clazz)) {
+        if (daggerInjectableClasses.contains(clazz)) {
             for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
                 if (isInjectable(constructor)) {
                     return true;
@@ -113,7 +113,7 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
     }
 
     private boolean isDaggerFieldInjected(Class<?> clazz) {
-        if (daggerInjectableClass.contains(clazz)) {
+        if (daggerInjectableClasses.contains(clazz)) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (isInjectable(field)) {
                     return true;
@@ -154,7 +154,6 @@ public class DaggerComponentProviderFactory implements IoCComponentProviderFacto
         public DaggerInjectedComponentProvider(ObjectGraph objectGraph) {
             this.objectGraph = objectGraph;
         }
-
 
         @Override
         public Object getInstance() {

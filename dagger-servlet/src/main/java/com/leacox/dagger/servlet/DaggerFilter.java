@@ -18,21 +18,15 @@
 package com.leacox.dagger.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.logging.Logger;
 
 /**
  * <p/>
@@ -88,7 +82,7 @@ public class DaggerFilter implements Filter {
         // This can happen if you create many injectors and they all have their own
         // servlet module. This is legal, caveat a small warning.
         if (DaggerFilter.pipeline instanceof ManagedFilterPipeline) {
-            Logger.getLogger(DaggerFilter.class.getName()).warning(MULTIPLE_INJECTORS_WARNING);
+            LoggerFactory.getLogger(DaggerFilter.class).warn(MULTIPLE_INJECTORS_WARNING);
         }
 
         // We overwrite the default pipeline
@@ -131,7 +125,7 @@ public class DaggerFilter implements Filter {
     /**
      * This method should not be used directly.
      * <p/>
-     * This method is used by {@code ScopingObjectGraph} for provided scoped injections. Since
+     * This method is used by {@code ScopingObjectGraph} for providing scoped injections. Since
      * {@code ScopingObjectGraph} must be in the {@code dagger} package to work with Dagger, this method must be
      * publicly accessible. If {@code ScopingObjectGraph} can be moved to the {@code com.leacox.dagger.servlet} package
      * this method can become package private.
@@ -150,7 +144,7 @@ public class DaggerFilter implements Filter {
     /**
      * This method should not be used directly.
      * <p/>
-     * This method is used by {@code ScopingObjectGraph} for provided scoped injections. Since
+     * This method is used by {@code ScopingObjectGraph} for providing scoped injections. Since
      * {@code ScopingObjectGraph} must be in the {@code dagger} package to work with Dagger, this method must be
      * publicly accessible. If {@code ScopingObjectGraph} can be moved to the {@code com.leacox.dagger.servlet} package
      * this method can become package private.
@@ -169,7 +163,7 @@ public class DaggerFilter implements Filter {
     /**
      * This method should not be used directly.
      * <p/>
-     * This method is used by {@code ScopingObjectGraph} for provided scoped injections. Since
+     * This method is used by {@code ScopingObjectGraph} for providing scoped injections. Since
      * {@code ScopingObjectGraph} must be in the {@code dagger} package to work with Dagger, this method must be
      * publicly accessible. If {@code ScopingObjectGraph} can be moved to the {@code com.leacox.dagger.servlet} package
      * this method can become package private.

@@ -56,7 +56,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Configures injection using dagger and configures filters and servlets.
  * <p/>
- * This class should be subclasses to register filters and servlets in the {@link #configureServlets()} method. Your
+ * This class should be subclassed to register filters and servlets in the {@link #configureServlets()} method. Your
  * dagger modules should be added to the {@link #getBaseModules()} and {@link #getRequestScopedModules()} methods.
  * <p/>
  * Your dagger modules should be split into separate classes by scope like so:
@@ -350,7 +350,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
     public static interface FilterDefinitionBuilder {
         void through(Class<? extends Filter> filterClass);
 
-        // TODO: Implement instance support
         void through(Filter filter);
 
         void through(Class<? extends Filter> filterClass, Map<String, String> initParams);
@@ -402,7 +401,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
     public static interface ServletDefinitionBuilder {
         void with(Class<? extends HttpServlet> servletClass);
 
-        // TODO: Implement instance support
         void with(HttpServlet servlet);
 
         void with(Class<? extends HttpServlet> servletClass, Map<String, String> initParams);

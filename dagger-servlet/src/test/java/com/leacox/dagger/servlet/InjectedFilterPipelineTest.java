@@ -32,26 +32,19 @@
 
 package com.leacox.dagger.servlet;
 
-import java.io.IOException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-
 import dagger.Module;
 import dagger.ObjectGraph;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.isNull;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+import static org.easymock.EasyMock.*;
 import static org.testng.Assert.fail;
 
 /**
@@ -108,7 +101,7 @@ public class InjectedFilterPipelineTest {
         contextListener1.contextInitialized(new ServletContextEvent(servletContext1));
         objectGraph1 = contextListener1.getObjectGraph();
 
-        // Test second injector with exactly opposite pipeline config
+        // Test second object graph with exactly opposite pipeline config
         DaggerServletContextListener contextListener2 = new DaggerServletContextListener() {
             @Override
             protected Class<?>[] getBaseModules() {
@@ -157,7 +150,7 @@ public class InjectedFilterPipelineTest {
                 .once();
 
         expect(request.getRequestURI())
-                .andReturn("/non-jsp/login.html") // use a path that will fail in injector2
+                .andReturn("/non-jsp/login.html") // use a path that will fail in objectGraph2
                 .anyTimes();
         expect(request.getContextPath())
                 .andReturn("")
@@ -180,7 +173,7 @@ public class InjectedFilterPipelineTest {
         verify(filterConfig, servletContext, request, proceedingFilterChain);
 
 
-        // reset mocks and run them against the other injector
+        // reset mocks and run them against the other object graph
         reset(filterConfig, servletContext, request, proceedingFilterChain);
 
         // Create a second proceeding filter chain
@@ -192,7 +185,7 @@ public class InjectedFilterPipelineTest {
                 .andReturn(servletContext)
                 .once();
         expect(request.getRequestURI())
-                .andReturn("/public/login/login.jsp") // use a path that will fail in injector1
+                .andReturn("/public/login/login.jsp") // use a path that will fail in objectGraph1
                 .anyTimes();
         expect(request.getContextPath())
                 .andReturn("")
@@ -218,7 +211,8 @@ public class InjectedFilterPipelineTest {
     @Singleton
     public static class TestFilter implements Filter {
         @Inject
-        TestFilter() {}
+        TestFilter() {
+        }
 
         @Override
         public void init(FilterConfig filterConfig) throws ServletException {
@@ -238,7 +232,8 @@ public class InjectedFilterPipelineTest {
     @Singleton
     public static class NeverFilter implements Filter {
         @Inject
-        NeverFilter() {}
+        NeverFilter() {
+        }
 
         @Override
         public void init(FilterConfig filterConfig) throws ServletException {

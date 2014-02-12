@@ -23,6 +23,10 @@
             <artifactId>dagger</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.dagger</groupId>
             <artifactId>dagger-compiler</artifactId>
             <optional>true</optional>

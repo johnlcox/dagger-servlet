@@ -37,8 +37,8 @@ import java.util.Map;
  * {@link com.sun.jersey.core.spi.component.ioc.IoCComponentProviderFactory}, so that instances of resource and provider
  * classes managed by Dagger can be injected.
  * <p/>
- * Dagger-managed classes that are root resource classes or provider classes will be automatically registered with,
- * so that they do not need to be configured in the web.xml.
+ * Dagger-managed classes that are root resource classes or provider classes will be automatically registered with
+ * jersey, so that they do not need to be configured in the web.xml.
  *
  * @author John Leacox
  */

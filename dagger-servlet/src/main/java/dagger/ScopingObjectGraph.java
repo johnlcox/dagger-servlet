@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import com.leacox.dagger.servlet.DaggerFilter;
 import com.leacox.dagger.servlet.RequestScoped;
 import com.leacox.dagger.servlet.ServletScopes;
-import com.leacox.dagger.servlet.SessionScoped;
 import com.leacox.dagger.servlet.scope.Scope;
 
 import javax.servlet.http.HttpServletRequest;

@@ -40,28 +40,24 @@ import javax.servlet.http.HttpSession;
 )
 class InternalServletRequestModule {
     @Provides
-    //@RequestScoped
     @Singleton
     ServletRequest provideServletRequest() {
         return DaggerFilter.getRequest();
     }
 
     @Provides
-    //@RequestScoped
     @Singleton
     ServletResponse provideServletResponse() {
         return DaggerFilter.getResponse();
     }
 
     @Provides
-    //@RequestScoped
     @Singleton
     HttpServletRequest provideHttpServletRequest() {
         return DaggerFilter.getRequest();
     }
 
     @Provides
-    //@RequestScoped
     @Singleton
     HttpServletResponse provideHttpServletResponse() {
         return DaggerFilter.getResponse();
