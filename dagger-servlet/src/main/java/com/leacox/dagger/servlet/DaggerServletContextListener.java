@@ -167,8 +167,6 @@ public abstract class DaggerServletContextListener implements ServletContextList
         return objectGraph;
     }
 
-    // TODO: Would it be better to automatically include ServletModule and ServletRequestModule?
-
     /**
      * Override this method to return an array of your application level Dagger modules. {@link ServletModule} should
      * be included.
