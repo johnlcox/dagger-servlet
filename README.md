@@ -8,7 +8,7 @@ Dagger Servlet is a port of the Guice Servlet project and Jersey Guice project f
 
 ```xml
 <dependency>
-  <groupId>com.leacox.dagger.servlet</groupId>
+  <groupId>com.leacox.dagger</groupId>
   <artifactId>dagger-servlet<artifactId>
   <version>1.0.0-SNAPSHOT</version>
 </dependency>
