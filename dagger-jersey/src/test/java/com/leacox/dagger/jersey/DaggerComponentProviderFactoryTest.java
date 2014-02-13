@@ -20,6 +20,7 @@ import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import dagger.Module;
 import dagger.ObjectGraph;
+import dagger.Provides;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
@@ -37,28 +38,51 @@ public class DaggerComponentProviderFactoryTest {
     @Provider
     static class SomeProvider {
         @Inject
-        SomeProvider() {}
+        SomeProvider() {
+        }
     }
 
     @Path("/some")
     static class SomeResource {
         @Inject
-        SomeResource() {}
+        SomeResource() {
+        }
     }
 
     @Path("/some-other")
     static class SomeOtherResource {
         @Inject
-        SomeOtherResource() {}
+        SomeOtherResource() {
+        }
     }
 
     @Module(injects = {SomeResource.class, SomeProvider.class})
     static class SomeModule {
     }
 
+    @Module(library = true)
+    static class SomeProvidesModule {
+        @Provides
+        SomeResource provideSomeResource() {
+            return new SomeResource();
+        }
+
+        @Provides
+        SomeProvider provideSomeProvider() {
+            return new SomeProvider();
+        }
+    }
+
     @Module(injects = SomeOtherResource.class)
     static class SomeOtherModule {
+    }
 
+    @Module(library = true)
+    static class SomeOtherProvidesModule {
+        @Provides
+        SomeOtherResource provideSomeOtherResource() {
+            return new SomeOtherResource();
+        }
     }
 
     static class SomeNonModule {
@@ -81,6 +105,17 @@ public class DaggerComponentProviderFactoryTest {
         ResourceConfig config = new DefaultResourceConfig();
         ObjectGraph objectGraph = ObjectGraph.create(SomeModule.class, new SomeOtherModule());
         new DaggerComponentProviderFactory(config, objectGraph, new Object[]{SomeModule.class, new SomeOtherModule()});
+
+        assertTrue(config.getClasses().contains(SomeResource.class));
+        assertTrue(config.getClasses().contains(SomeOtherResource.class));
+    }
+
+    @Test
+    public void testClassesFromProvidesMethodsAreRegistered() {
+        ResourceConfig config = new DefaultResourceConfig();
+        ObjectGraph objectGraph = ObjectGraph.create(SomeProvidesModule.class, new SomeOtherProvidesModule());
+        new DaggerComponentProviderFactory(config, objectGraph, new Object[]{SomeProvidesModule.class,
+                new SomeOtherProvidesModule()});
 
         assertTrue(config.getClasses().contains(SomeResource.class));
         assertTrue(config.getClasses().contains(SomeOtherResource.class));

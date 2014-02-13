@@ -25,12 +25,14 @@ import com.sun.jersey.core.spi.component.ioc.IoCInstantiatedComponentProvider;
 import com.sun.jersey.core.spi.component.ioc.IoCProxiedComponentProvider;
 import dagger.Module;
 import dagger.ObjectGraph;
+import dagger.Provides;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
@@ -43,18 +45,23 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
 
     private final ObjectGraph objectGraph;
     private final Set<Class<?>> daggerInjectableClasses = Sets.newHashSet();
+    private final Set<Class<?>> daggerProvidedClasses = Sets.newHashSet();
 
     public DaggerComponentProviderFactory(ResourceConfig config, ObjectGraph objectGraph, Object[] modules) {
         this.objectGraph = objectGraph;
 
         for (Object module : modules) {
-            Module annotation;
-            if (module instanceof Class<?>) {
-                annotation = ((Class<?>) module).getAnnotation(Module.class);
-            } else {
-                annotation = module.getClass().getAnnotation(Module.class);
-            }
-            register(config, annotation);
+            Class<?> moduleClass = getModuleClass(module);
+            Module annotation = moduleClass.getAnnotation(Module.class);
+            register(config, moduleClass, annotation);
+        }
+    }
+
+    private Class<?> getModuleClass(Object module) {
+        if (module instanceof Class<?>) {
+            return (Class<?>) module;
+        } else {
+            return module.getClass();
         }
     }
 
@@ -69,7 +76,7 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
             LOGGER.debug("getComponentProvider({0}", clazz.getName());
         }
 
-        if (isDaggerConstructorInjected(clazz)) {
+        if (isDaggerConstructorInjected(clazz) || isDaggerProvided(clazz)) {
             return new DaggerInstantiatedComponentProvider(objectGraph, clazz);
         } else if (isDaggerFieldInjected(clazz)) {
             return new DaggerInjectedComponentProvider(objectGraph);
@@ -78,25 +85,45 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
         }
     }
 
-    private void register(ResourceConfig config, Module annotation) {
+    private void register(ResourceConfig config, Class<?> moduleClass, Module annotation) {
         if (annotation == null) {
             throw new IllegalStateException("All dagger modules must be annotated with @Module");
         }
 
         for (Class<?> clazz : annotation.injects()) {
             if (ResourceConfig.isProviderClass(clazz)) {
-                LOGGER.info("Registering {0} as a provider class", clazz.getName());
+                LOGGER.info("Registering {} as a provider class", clazz.getName());
                 config.getClasses().add(clazz);
             } else if (ResourceConfig.isRootResourceClass(clazz)) {
-                LOGGER.info("Registering {0} as a root resource class", clazz.getName());
+                LOGGER.info("Registering {} as a root resource class", clazz.getName());
                 config.getClasses().add(clazz);
             }
 
             daggerInjectableClasses.add(clazz);
         }
 
+        registerProvides(config, moduleClass);
+
         for (Class<?> clazz : annotation.includes()) {
-            register(config, clazz.getAnnotation(Module.class));
+            register(config, clazz, clazz.getAnnotation(Module.class));
+        }
+    }
+
+    private void registerProvides(ResourceConfig config, Class<?> moduleClass) {
+        for (Method method : moduleClass.getDeclaredMethods()) {
+            Provides annotation = method.getAnnotation(Provides.class);
+            if (annotation != null) {
+                Class<?> returnType = method.getReturnType();
+                if (ResourceConfig.isProviderClass(returnType)) {
+                    LOGGER.info("Registering {} as a provider class", returnType.getName());
+                    config.getClasses().add(returnType);
+                } else if (ResourceConfig.isRootResourceClass(returnType)) {
+                    LOGGER.info("Registering {} as a root resource class", returnType.getName());
+                    config.getClasses().add(returnType);
+                }
+
+                daggerProvidedClasses.add(returnType);
+            }
         }
     }
 
@@ -110,6 +137,10 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
         }
 
         return false;
+    }
+
+    private boolean isDaggerProvided(Class<?> clazz) {
+        return daggerProvidedClasses.contains(clazz);
     }
 
     private boolean isDaggerFieldInjected(Class<?> clazz) {
