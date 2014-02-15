@@ -73,7 +73,7 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
     @Override
     public IoCComponentProvider getComponentProvider(ComponentContext componentContext, Class<?> clazz) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getComponentProvider({0}", clazz.getName());
+            LOGGER.debug("getComponentProvider({})", clazz.getName());
         }
 
         if (isDaggerConstructorInjected(clazz) || isDaggerProvided(clazz)) {
@@ -91,14 +91,7 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
         }
 
         for (Class<?> clazz : annotation.injects()) {
-            if (ResourceConfig.isProviderClass(clazz)) {
-                LOGGER.info("Registering {} as a provider class", clazz.getName());
-                config.getClasses().add(clazz);
-            } else if (ResourceConfig.isRootResourceClass(clazz)) {
-                LOGGER.info("Registering {} as a root resource class", clazz.getName());
-                config.getClasses().add(clazz);
-            }
-
+            registerClass(config, clazz);
             daggerInjectableClasses.add(clazz);
         }
 
@@ -114,15 +107,20 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
             Provides annotation = method.getAnnotation(Provides.class);
             if (annotation != null) {
                 Class<?> returnType = method.getReturnType();
-                if (ResourceConfig.isProviderClass(returnType)) {
-                    LOGGER.info("Registering {} as a provider class", returnType.getName());
-                    config.getClasses().add(returnType);
-                } else if (ResourceConfig.isRootResourceClass(returnType)) {
-                    LOGGER.info("Registering {} as a root resource class", returnType.getName());
-                    config.getClasses().add(returnType);
-                }
-
+                registerClass(config, returnType);
                 daggerProvidedClasses.add(returnType);
+            }
+        }
+    }
+
+    private void registerClass(ResourceConfig config, Class<?> clazz) {
+        if (!daggerInjectableClasses.contains(clazz) && !daggerProvidedClasses.contains(clazz)) {
+            if (ResourceConfig.isProviderClass(clazz)) {
+                LOGGER.info("Registering {} as a provider class", clazz.getName());
+                config.getClasses().add(clazz);
+            } else if (ResourceConfig.isRootResourceClass(clazz)) {
+                LOGGER.info("Registering {} as a root resource class", clazz.getName());
+                config.getClasses().add(clazz);
             }
         }
     }
