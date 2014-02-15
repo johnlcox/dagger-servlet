@@ -33,7 +33,6 @@
 
 package com.leacox.dagger.servlet;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -162,8 +161,14 @@ public abstract class DaggerServletContextListener implements ServletContextList
         servletContext.removeAttribute(OBJECT_GRAPH_NAME);
     }
 
-    @VisibleForTesting
-    ObjectGraph getObjectGraph() {
+
+    /**
+     * Gets the servlet object graph created from the base and request scoped module. The returned object graph will be
+     *
+     * @return the servlet object graph, null if the context listener has not been initialized.
+     * @{code null} until the context listener has been initialized.
+     */
+    protected ObjectGraph getObjectGraph() {
         return objectGraph;
     }
 
