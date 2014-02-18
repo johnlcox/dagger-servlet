@@ -18,6 +18,7 @@ package com.leacox.dagger.jersey;
 
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
+import com.sun.jersey.core.spi.component.ioc.IoCComponentProviderFactory;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
@@ -28,6 +29,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
@@ -42,11 +45,23 @@ public class DaggerComponentProviderFactoryTest {
         }
     }
 
+    @Provider
+    static class SomeProvidesInjectableProvider {
+    }
+
     @Path("/some")
     static class SomeResource {
         @Inject
         SomeResource() {
         }
+    }
+
+    @Path("/some-provides")
+    static class SomeProvidesInjectableResource {
+    }
+
+    @Path("/some-other-provides")
+    static class SomeOtherProvidesInjectableResource {
     }
 
     @Path("/some-other")
@@ -73,6 +88,19 @@ public class DaggerComponentProviderFactoryTest {
         }
     }
 
+    @Module(injects = {SomeProvidesInjectableResource.class, SomeProvidesInjectableProvider.class})
+    static class SomeInjectableProvidesModule {
+        @Provides
+        SomeProvidesInjectableResource provideSomeResource() {
+            return new SomeProvidesInjectableResource();
+        }
+
+        @Provides
+        SomeProvidesInjectableProvider provideSomeProvider() {
+            return new SomeProvidesInjectableProvider();
+        }
+    }
+
     @Module(injects = SomeOtherResource.class)
     static class SomeOtherModule {
     }
@@ -82,6 +110,14 @@ public class DaggerComponentProviderFactoryTest {
         @Provides
         SomeOtherResource provideSomeOtherResource() {
             return new SomeOtherResource();
+        }
+    }
+
+    @Module(injects = SomeOtherProvidesInjectableResource.class)
+    static class SomeOtherInjectableProvidesModule {
+        @Provides
+        SomeOtherProvidesInjectableResource provideSomeOtherResource() {
+            return new SomeOtherProvidesInjectableResource();
         }
     }
 
@@ -111,14 +147,39 @@ public class DaggerComponentProviderFactoryTest {
     }
 
     @Test
-    public void testClassesFromProvidesMethodsAreRegistered() {
+    public void testClassesFromProvidesMethodsWithoutModuleInjectsAreNotRegistered() {
         ResourceConfig config = new DefaultResourceConfig();
         ObjectGraph objectGraph = ObjectGraph.create(SomeProvidesModule.class, new SomeOtherProvidesModule());
-        new DaggerComponentProviderFactory(config, objectGraph, new Object[]{SomeProvidesModule.class,
-                new SomeOtherProvidesModule()});
+        new DaggerComponentProviderFactory(config, objectGraph,
+                new Object[]{SomeProvidesModule.class, new SomeOtherProvidesModule()});
 
-        assertTrue(config.getClasses().contains(SomeResource.class));
-        assertTrue(config.getClasses().contains(SomeOtherResource.class));
+        assertFalse(config.getClasses().contains(SomeResource.class));
+        assertFalse(config.getClasses().contains(SomeOtherResource.class));
+        assertFalse(config.getClasses().contains(SomeProvider.class));
+    }
+
+    @Test
+    public void testClassesFromProvidesMethodsWithModuleInjectsAndNoInjectsConstructorAreRegistered() {
+        ResourceConfig config = new DefaultResourceConfig();
+        ObjectGraph objectGraph = ObjectGraph.create(SomeInjectableProvidesModule.class,
+                new SomeOtherInjectableProvidesModule());
+        IoCComponentProviderFactory factory = new DaggerComponentProviderFactory(config, objectGraph,
+                new Object[]{SomeInjectableProvidesModule.class, new SomeOtherInjectableProvidesModule()});
+
+        assertTrue(config.getClasses().contains(SomeProvidesInjectableResource.class));
+        assertTrue(config.getClasses().contains(SomeOtherProvidesInjectableResource.class));
+        assertTrue(config.getClasses().contains(SomeProvidesInjectableProvider.class));
+
+        SomeProvidesInjectableResource someResource = (SomeProvidesInjectableResource) factory.
+                getComponentProvider(SomeProvidesInjectableResource.class).getInstance();
+        SomeOtherProvidesInjectableResource someOtherResource = (SomeOtherProvidesInjectableResource) factory
+                .getComponentProvider(SomeOtherProvidesInjectableResource.class).getInstance();
+        SomeProvidesInjectableProvider someProvider = (SomeProvidesInjectableProvider) factory
+                .getComponentProvider(SomeProvidesInjectableProvider.class).getInstance();
+
+        assertNotNull(someResource);
+        assertNotNull(someOtherResource);
+        assertNotNull(someProvider);
     }
 
     @Test

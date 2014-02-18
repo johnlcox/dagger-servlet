@@ -76,7 +76,7 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
             LOGGER.debug("getComponentProvider({})", clazz.getName());
         }
 
-        if (isDaggerConstructorInjected(clazz) || isDaggerProvided(clazz)) {
+        if (isDaggerConstructorInjected(clazz) || isDaggerProvidedInjectable(clazz)) {
             return new DaggerInstantiatedComponentProvider(objectGraph, clazz);
         } else if (isDaggerFieldInjected(clazz)) {
             return new DaggerInjectedComponentProvider(objectGraph);
@@ -102,12 +102,16 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
         }
     }
 
+    /**
+     * Does not actually register the provides return types with Jersey. They are only added to the
+     * daggerProvidedClasses set. Only classes in the 'injects' field of a module can be created via the
+     * ObjectGraph#get() method.
+     */
     private void registerProvides(ResourceConfig config, Class<?> moduleClass) {
         for (Method method : moduleClass.getDeclaredMethods()) {
             Provides annotation = method.getAnnotation(Provides.class);
             if (annotation != null) {
                 Class<?> returnType = method.getReturnType();
-                registerClass(config, returnType);
                 daggerProvidedClasses.add(returnType);
             }
         }
@@ -137,8 +141,8 @@ class DaggerComponentProviderFactory implements IoCComponentProviderFactory {
         return false;
     }
 
-    private boolean isDaggerProvided(Class<?> clazz) {
-        return daggerProvidedClasses.contains(clazz);
+    private boolean isDaggerProvidedInjectable(Class<?> clazz) {
+        return daggerInjectableClasses.contains(clazz) && daggerProvidedClasses.contains(clazz);
     }
 
     private boolean isDaggerFieldInjected(Class<?> clazz) {
