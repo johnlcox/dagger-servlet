@@ -34,6 +34,29 @@ Create a `ServletContextListener` for your application that extends from `Dagger
 ```
 
 ### Configuring Dagger modules
+Dagger modules can be configured for application wide scope and for request scope. Start by creating an application wide Dagger module containing all of your application wide bindings. The application wide module should declare `ServletModule` as an `include` to get the `dagger-servlet` defined bindings. Next create another module for all of your request scoped bindings. Any `@Singleton` bindings defined in the request scoped module will be singletons for a given request. The request module must declare `ServletRequestModule` as an `include` to get the `dagger-servlet` request scoped bindings.
+
+Add the modules to your `DaggerServletContextListener` implementation so that the dagger injections are available when the web application starts up.
+
+```java
+@Module(injects = {...}, includes = ServletModule.class)
+public class MyModule {}
+
+@Module(injects = {...}, includes = ServletRequestModule.class)
+public class MyRequestModule {}
+
+public class MyServletContextListener extends DaggerServletContextListener {
+    @Override
+    protected Class<?>[] getBaseModules() {
+        return new Class<?>[]{MyModule.class};
+    }
+
+    @Override
+    protected Class<?>[] getRequestScopedModules() {
+        return new Class<?>[]{MyRequestModule.class};
+    }
+}
+```
 
 ### Binding Servlets and Filters
 
