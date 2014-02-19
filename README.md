@@ -59,6 +59,20 @@ public class MyServletContextListener extends DaggerServletContextListener {
 ```
 
 ### Binding Servlets and Filters
+With `DaggerServletContextListener` servlet and filter mappings can be configured in code instead of the `web.xml` file. These bindings are configured in the `configureServlets` method. Filters will be applied in the order they are declared.
+
+```java
+public class MyServletContextListener extends DaggerServletContextListener {
+    @Override
+    protected void configureServlets() {
+        filter("/my/*").through(MyFilter.class);
+        
+        serve("/my/*").with(MyServlet.class);
+    }
+}
+```
+
+Every `Servlet` and `Filter` class must be a singleton. If you cannot add the `@Singleton` binding, then they must be defined in a singleton `@Provides` method.
 
 ### Using request scope
 
