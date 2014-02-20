@@ -83,3 +83,48 @@ All request scoped bindings should be configured in a module that is included in
 * javax.servlet.http.HttpSession
 
 ## Using dagger-jersey
+
+### Configuring dagger-jersey
+Start by configuring the web.xml file just like above for dagger-servlet. dagger-jersey provides `JerseyModule` and `JerseyRequestModule` that should be included in your application wide module and request module respectively. Jersey resource classes are typically request scoped, so you should add them to the `injects` field of your request module and mark them as `@Singleton`. Finally bind the `DaggerContainer` to `/*`.
+
+Below is a simple example of a `DaggerServletContextListener` implementation and modules for Jersey:
+```java
+MyContextListener extends DaggerServletContextListener {
+   @Override
+   protected Class<?>[] getBaseModules() {
+       return new Class<?>[]{ MyAppModule.class };
+   }
+
+   @Override
+   protected Class<?>[] getRequestScopedModules() {
+       return new Class<?>[]{ MyRequestModule.class };
+   }
+
+   @Override
+   protected void configureServlets() {
+       serve("/*").with(DaggerContainer.class);
+   }
+}
+
+@Module(
+        injects = MyClass.class,
+        includes = JerseyModule.class
+)
+class MyAppModule {
+    /* Your app wide provides here {@literal *}/
+}
+
+@Module(
+        injects = {
+            MyRequestScopedClass.class,
+            MyResource.class
+        },
+        includes = JerseyRequestModule.class
+)
+class MyRequestModule {
+    /* Your request scoped provides here {@literal *}/
+}
+
+@Singleton
+class MyResource {}
+```
