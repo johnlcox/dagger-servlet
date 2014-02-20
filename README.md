@@ -75,5 +75,11 @@ public class MyServletContextListener extends DaggerServletContextListener {
 Every `Servlet` and `Filter` class must be a singleton. If you cannot add the `@Singleton` binding, then they must be defined in a singleton `@Provides` method.
 
 ### Using request scope
+All request scoped bindings should be configured in a module that is included in the `DaggerServletContextListener#getRequestScopedModules`. To create a binding that has the same lifetime as a request declare it in your request scoped module and annotate the binding as `@Singleton`. Non-singleton bindings in the request module will create a new instance for each injection. Your module should also include `ServletRequestModule` to get the request scoped bindings provided by dagger-servlet.
+
+`ServletRequestModule` provides the following request scoped bindings:
+* javax.servlet.ServletRequest
+* javax.servlet.ServletResponse
+* javax.servlet.http.HttpSession
 
 ## Using dagger-jersey
