@@ -10,7 +10,7 @@ Dagger Servlet is a port of the Guice Servlet project and Jersey Guice project f
 <dependency>
   <groupId>com.leacox.dagger</groupId>
   <artifactId>dagger-servlet</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -83,6 +83,16 @@ All request scoped bindings should be configured in a module that is included in
 * javax.servlet.http.HttpSession
 
 ## Using dagger-jersey
+
+### Include dagger-jersey jar
+
+```xml
+<dependency>
+  <groupId>com.leacox.dagger</groupId>
+  <artifactId>dagger-jersey</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
 
 ### Configuring dagger-jersey
 Start by configuring the web.xml file just like above for dagger-servlet. dagger-jersey provides `JerseyModule` and `JerseyRequestModule` that should be included in your application wide module and request module respectively. Jersey resource classes are typically request scoped, so you should add them to the `injects` field of your request module and mark them as `@Singleton`. Finally bind the `DaggerContainer` to `/*`.
