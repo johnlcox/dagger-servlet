@@ -1,4 +1,4 @@
-package com.leacox.dagger.example.simple;
+package com.leacox.dagger.example.jersey.simple;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

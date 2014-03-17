@@ -1,0 +1,27 @@
+<web-app>
+    <listener>
+        <listener-class>com.leacox.dagger.example.jersey2.simple.SimpleContextListener</listener-class>
+    </listener>
+    <filter>
+        <filter-name>Dagger Filter</filter-name>
+        <filter-class>com.leacox.dagger.servlet.DaggerFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Dagger Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>DaggerApplication</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>com.leacox.dagger.jersey2.DaggerApplication</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DaggerApplication</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

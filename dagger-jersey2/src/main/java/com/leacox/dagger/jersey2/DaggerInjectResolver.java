@@ -6,6 +6,7 @@ import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.ServiceHandle;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,6 +14,7 @@ import java.lang.reflect.Type;
 /**
  * @author John Leacox
  */
+@Singleton
 public class DaggerInjectResolver implements InjectionResolver<Inject> {
     private final ObjectGraph objectGraph;
 
@@ -22,12 +24,9 @@ public class DaggerInjectResolver implements InjectionResolver<Inject> {
 
     @Override
     public Object resolve(Injectee injectee, ServiceHandle<?> root) {
-        AnnotatedElement parent = injectee.getParent();
+        Class<?> clazz = getClassFromType(injectee.getRequiredType());
 
-        if (parent != null) {
-
-        }
-        return null;
+        return objectGraph.get(clazz);
     }
 
     @Override

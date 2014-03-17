@@ -1,4 +1,4 @@
-package com.leacox.dagger.example.simple;
+package com.leacox.dagger.example.jersey.simple;
 
 import com.leacox.dagger.jersey.JerseyModule;
 import com.leacox.dagger.servlet.ServletModule;

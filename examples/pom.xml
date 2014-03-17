@@ -18,6 +18,7 @@
     <modules>
         <module>jersey-simple</module>
         <module>jersey-simple-guice</module>
+        <module>jersey2-simple</module>
     </modules>
 
     <dependencyManagement>

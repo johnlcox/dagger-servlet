@@ -1,6 +1,6 @@
 <web-app>
     <listener>
-        <listener-class>com.leacox.dagger.example.simple.SimpleContextListener</listener-class>
+        <listener-class>com.leacox.dagger.example.jersey.simple.SimpleContextListener</listener-class>
     </listener>
     <filter>
         <filter-name>Dagger Filter</filter-name>
