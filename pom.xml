@@ -19,6 +19,7 @@
         <module>dagger-servlet</module>
         <module>dagger-jersey</module>
         <module>examples</module>
+        <module>dagger-jersey2</module>
     </modules>
 
     <properties>
