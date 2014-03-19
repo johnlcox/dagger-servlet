@@ -3,6 +3,8 @@ package com.leacox.dagger.jersey2;
 import com.leacox.dagger.hk2.bridge.api.DaggerBridge;
 import com.leacox.dagger.hk2.bridge.api.DaggerIntoHk2Bridge;
 import com.leacox.dagger.servlet.DaggerServletContextListener;
+import com.leacox.dagger.servlet.internal.ModuleClasses;
+import dagger.Module;
 import dagger.ObjectGraph;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.Factory;
@@ -10,6 +12,8 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.ServiceBindingBuilder;
 import org.glassfish.jersey.internal.inject.Injections;
+import org.glassfish.jersey.server.ApplicationHandler;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spi.ComponentProvider;
 
 import javax.inject.Inject;
@@ -20,7 +24,6 @@ import java.util.Set;
  * @author John Leacox
  */
 public class DaggerComponentProvider implements ComponentProvider {
-
     private volatile ServiceLocator locator;
     private volatile ObjectGraph objectGraph;
 
@@ -30,13 +33,17 @@ public class DaggerComponentProvider implements ComponentProvider {
 
         ServletContext servletContext = locator.getService(ServletContext.class);
 
-        DaggerBridge.getDaggetBridge().initializeDaggerBridge(locator);
-        DaggerIntoHk2Bridge daggerBridge = locator.getService(DaggerIntoHk2Bridge.class);
+        //DaggerBridge.getDaggetBridge().initializeDaggerBridge(locator);
+        //DaggerIntoHk2Bridge daggerBridge = locator.getService(DaggerIntoHk2Bridge.class);
 
         objectGraph = (ObjectGraph) servletContext.getAttribute(DaggerServletContextListener.OBJECT_GRAPH_NAME);
-        daggerBridge.bridgeDaggerObjectGraph(objectGraph);
+        //objectGraph.get(Jersey2Module.ResourceConfigProvider.class).set(config);
 
-        ServiceLocatorUtilities.addOneConstant(locator, new DaggerInjectResolver(objectGraph));
+        //objectGraph.get(DaggerInjectionRegisterer.class).registerInjections();
+
+        //daggerBridge.bridgeDaggerObjectGraph(objectGraph);
+
+        // ServiceLocatorUtilities.addOneConstant(locator, new DaggerInjectResolver(objectGraph));
     }
 
     @Override
@@ -80,7 +87,7 @@ public class DaggerComponentProvider implements ComponentProvider {
         @Override
         public Object provide() {
             Object object = objectGraph.get(clazz);
-            locator.inject(object);
+            //locator.inject(object);
             return object;
         }
 
